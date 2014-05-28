@@ -48,6 +48,7 @@ public:
 
     portals::OutPortal<messages::StiffnessControl> stiffnessControlOutput;
     portals::OutPortal<messages::Toggle>           initialStateOutput;
+    portals::OutPortal<messages::Toggle>           playingStateOutput;
     portals::OutPortal<messages::Toggle>           advanceStateOutput;
     portals::OutPortal<messages::Toggle>           printJointsOutput;
     portals::OutPortal<messages::Toggle>           switchTeamOutput;
@@ -84,6 +85,7 @@ private:
     void checkAudio();
     void reloadMan();
     void initialState();
+    void playingState();
     void advanceState();
     void printJointAngles();
     void switchTeams();
@@ -111,6 +113,7 @@ private:
     bool useFallProtection;
 
     bool lastInitial;
+    bool lastPlaying;
     bool lastAdvance;
     bool lastPrint;
 

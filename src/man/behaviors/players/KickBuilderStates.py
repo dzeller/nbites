@@ -11,6 +11,7 @@ def gameInitial(player):
         player.gainsOn()
         player.brain.nav.stand()
         player.runfallController = False
+        player.wasPenalized = False
 
         if len(player.kick) > 1:
             player.kick = player.kick[:-1]
@@ -21,7 +22,6 @@ def gameInitial(player):
 def gameReady(player):
     if player.firstFrame():
         pass
-#        player.executeMove(player.kick)
 
     return player.stay()
 
@@ -29,17 +29,18 @@ def gameReady(player):
 def gameSet(player):
     if player.firstFrame():
         pass
-#player.gainsOff()
     return player.stay()
 
 @superState('gameControllerResponder')
 def gamePlaying(player):
     if player.firstFrame():
         player.gainsOn()
-        joints = constructTuple(player)
-        player.kick = player.kick + (joints,)
+        if player.wasPenalized:
+            joints = constructTuple(player)
+            player.kick = player.kick + (joints,)
         player.stand()
         gamePlaying.hasExecuted = False
+        player.wasPenalized = True
 
     if player.brain.nav.isStopped() and not gamePlaying.hasExecuted:
         player.executeMove(player.kick)
@@ -51,6 +52,7 @@ def gamePlaying(player):
 def gamePenalized(player):
     if player.firstFrame():
         player.gainsOff()
+        player.wasPenalized = True
 
     return player.stay()
 
