@@ -186,6 +186,7 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
     gamestate.buttonPressInput.wireTo(&guardian.advanceStateOutput, true);
     gamestate.initialStateInput.wireTo(&guardian.initialStateOutput, true);
     gamestate.playingStateInput.wireTo(&guardian.playingStateOutput, true);
+    gamestate.readyStateInput.wireTo(&guardian.readyStateOutput, true);
     gamestate.switchTeamInput.wireTo(&guardian.switchTeamOutput, true);
     gamestate.switchKickOffInput.wireTo(&guardian.switchKickOffOutput, true);
 

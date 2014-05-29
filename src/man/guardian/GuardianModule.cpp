@@ -27,6 +27,7 @@ GuardianModule::GuardianModule()
       stiffnessControlOutput(base()),
       initialStateOutput(base()),
       playingStateOutput(base()),
+      readyStateOutput(base()),
       advanceStateOutput(base()),
       printJointsOutput(base()),
       switchTeamOutput(base()),
@@ -539,15 +540,18 @@ bool GuardianModule::executeChestClickAction(int nClicks)
         playingState();
         break;
     case 3:
-        initialState();
+        readyState();
         break;
     case 4:
-        shutoffGains();
+        initialState();
         break;
     case 5:
-        enableGains();
+        shutoffGains();
         break;
     case 6:
+        enableGains();
+        break;
+    case 7:
         printJointAngles();
         break;
     case 9:
@@ -636,6 +640,16 @@ void GuardianModule::playingState()
     playingStateOutput.setMessage(command);
 
     lastPlaying = !lastPlaying;
+}
+
+void GuardianModule::readyState()
+{
+    std::cout << "Guardian::readyState()" << std::endl;
+    portals::Message<messages::Toggle> command(0);
+    command.get()->set_toggle(!lastPlaying);
+    readyStateOutput.setMessage(command);
+
+    lastReady = !lastReady;
 }
 
 void GuardianModule::advanceState()

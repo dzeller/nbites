@@ -17,6 +17,7 @@ GameStateModule::GameStateModule(int team, int player) :
     last_button(false),
     last_initial(false),
     last_playing(false),
+    last_ready(false),
     last_team(false),
     last_kickoff(false),
     response_status(GAMECONTROLLER_RETURN_MSG_ALIVE),
@@ -49,6 +50,7 @@ void GameStateModule::latchInputs()
     buttonPressInput  .latch();
     initialStateInput .latch();
     playingStateInput .latch();
+    readyStateInput   .latch();
     switchTeamInput   .latch();
     switchKickOffInput.latch();
 }
@@ -78,6 +80,15 @@ void GameStateModule::update()
         {
             reset();
             latest_data.set_state(STATE_PLAYING);
+        }
+    }
+    if (readyStateInput.message().toggle() != last_ready)
+    {
+        last_ready = !last_ready;
+        if (!commInput.message().have_remote_gc())
+        {
+            reset();
+            latest_data.set_state(STATE_READY);
         }
     }
     if (switchTeamInput.message().toggle() != last_team)

@@ -10,6 +10,16 @@ def gameInitial(player):
     if player.firstFrame():
         player.gainsOn()
         player.brain.nav.stand()
+        player.kick = SweetMoves.INITIAL_POS
+        player.wasPenalized = False
+
+    return player.stay()
+
+@superState('gameControllerResponder')
+def gameReady(player):
+    if player.firstFrame():
+        player.gainsOn()
+        player.brain.nav.stand()
         player.runfallController = False
         player.wasPenalized = False
 
@@ -19,16 +29,10 @@ def gameInitial(player):
     return player.stay()
 
 @superState('gameControllerResponder')
-def gameReady(player):
-    if player.firstFrame():
-        pass
-
-    return player.stay()
-
-@superState('gameControllerResponder')
 def gameSet(player):
     if player.firstFrame():
-        pass
+        player.wasPenalized = False
+        player.kick = player.kickSetup
     return player.stay()
 
 @superState('gameControllerResponder')
@@ -40,7 +44,7 @@ def gamePlaying(player):
             player.kick = player.kick + (joints,)
         player.stand()
         gamePlaying.hasExecuted = False
-        player.wasPenalized = True
+        player.wasPenalized = False
 
     if player.brain.nav.isStopped() and not gamePlaying.hasExecuted:
         player.executeMove(player.kick)
@@ -68,7 +72,7 @@ def constructTuple(player):
                   deg*joints.r_ankle_pitch, deg*joints.r_ankle_roll)
     fourthLine = (deg*joints.r_shoulder_pitch, deg*joints.r_shoulder_roll, deg*joints.r_elbow_yaw, deg*joints.r_elbow_roll)
 
-    fifthLine = (.5, 0, stiff.STANDUP_STIFFNESSES)
+    fifthLine = (.7, 1, stiff.STANDUP_STIFFNESSES)
 
     jointTuple = (firstLine, secondLine, thirdLine, fourthLine) + fifthLine
     # for position in jointTuple:

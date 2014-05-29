@@ -31,6 +31,7 @@ public:
     portals::InPortal<messages::Toggle>    buttonPressInput;
     portals::InPortal<messages::Toggle>    initialStateInput;
     portals::InPortal<messages::Toggle>    playingStateInput;
+    portals::InPortal<messages::Toggle>    readyStateInput;
     portals::InPortal<messages::Toggle>    switchTeamInput;
     portals::InPortal<messages::Toggle>    switchKickOffInput;
 
@@ -50,6 +51,7 @@ private:
     bool last_button;
     bool last_initial;
     bool last_playing;
+    bool last_ready;
     bool last_team;
     bool last_kickoff;
     int  response_status;
