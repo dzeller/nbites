@@ -29,7 +29,6 @@ def gameReady(player):
     return player.stay()
 @superState('gameControllerResponder')
 def gameSet(player):
-    return player.stay()
     if player.firstFrame():
         player.kick = SweetMoves.INITIAL_POS
         player.wasPenalized = False
