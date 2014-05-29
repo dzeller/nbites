@@ -540,10 +540,10 @@ bool GuardianModule::executeChestClickAction(int nClicks)
         playingState();
         break;
     case 3:
-        readyState();
+        initialState();
         break;
     case 4:
-        initialState();
+        readyState();
         break;
     case 5:
         shutoffGains();

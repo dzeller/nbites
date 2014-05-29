@@ -10,7 +10,7 @@ def gameInitial(player):
     if player.firstFrame():
         player.gainsOn()
         player.brain.nav.stand()
-        player.kick = SweetMoves.INITIAL_POS
+
         player.wasPenalized = False
 
     return player.stay()
@@ -27,12 +27,12 @@ def gameReady(player):
             player.kick = player.kick[:-1]
 
     return player.stay()
-
 @superState('gameControllerResponder')
 def gameSet(player):
+    return player.stay()
     if player.firstFrame():
+        player.kick = SweetMoves.INITIAL_POS
         player.wasPenalized = False
-        player.kick = player.kickSetup
     return player.stay()
 
 @superState('gameControllerResponder')
