@@ -30,7 +30,8 @@ def gameReady(player):
 @superState('gameControllerResponder')
 def gameSet(player):
     if player.firstFrame():
-        player.kick = SweetMoves.INITIAL_POS
+#        player.kick = SweetMoves.INITIAL_POS
+        player.kick = SweetMoves.STAND_FOR_KICK_LEFT
         player.wasPenalized = False
     return player.stay()
 
@@ -71,12 +72,12 @@ def constructTuple(player):
                   deg*joints.r_ankle_pitch, deg*joints.r_ankle_roll)
     fourthLine = (deg*joints.r_shoulder_pitch, deg*joints.r_shoulder_roll, deg*joints.r_elbow_yaw, deg*joints.r_elbow_roll)
 
-    fifthLine = (.7, 1, stiff.STANDUP_STIFFNESSES)
+    fifthLine = (.4, 1, stiff.STANDUP_STIFFNESSES)
 
-    jointTuple = (firstLine, secondLine, thirdLine, fourthLine) + fifthLine
-    # for position in jointTuple:
-    #     for tup in position:
-    #         print tup
-    #         print "done with that position"
+    # jointTuple = (firstLine, secondLine, thirdLine, fourthLine) + fifthLine
+    jointTuple = (player.kick[-1][0], secondLine, player.kick[-1][2], player.kick[-1][3]) + fifthLine
+
+    for something in jointTuple:
+            print something
 
     return jointTuple
