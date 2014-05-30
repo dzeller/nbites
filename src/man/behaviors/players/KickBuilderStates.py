@@ -11,38 +11,6 @@ def gameInitial(player):
         player.gainsOn()
         player.brain.nav.stand()
 
-        player.wasPenalized = False
-
-    return player.stay()
-
-@superState('gameControllerResponder')
-def gameReady(player):
-    if player.firstFrame():
-        player.gainsOn()
-        player.brain.nav.stand()
-        player.runfallController = False
-        player.wasPenalized = False
-
-        if len(player.kick) > 1:
-            player.kick = player.kick[:-1]
-
-    return player.stay()
-@superState('gameControllerResponder')
-def gameSet(player):
-    if player.firstFrame():
-#        player.kick = SweetMoves.INITIAL_POS
-        player.kick = SweetMoves.STAND_FOR_KICK_LEFT
-        player.wasPenalized = False
-    return player.stay()
-
-@superState('gameControllerResponder')
-def gamePlaying(player):
-    if player.firstFrame():
-        player.gainsOn()
-        if player.wasPenalized:
-            joints = constructTuple(player)
-            player.kick = player.kick + (joints,)
-        player.stand()
         gamePlaying.hasExecuted = False
         player.wasPenalized = False
 
@@ -53,10 +21,38 @@ def gamePlaying(player):
     return player.stay()
 
 @superState('gameControllerResponder')
+def gameReady(player):
+    if player.firstFrame():
+        player.kick = SweetMoves.STAND_FOR_KICK_LEFT
+        player.wasPenalized = False
+
+    return player.stay()
+
+@superState('gameControllerResponder')
+def gameSet(player):
+    if player.firstFrame():
+        player.kick = SweetMoves.INITIAL_POS
+        player.wasPenalized = False
+
+    return player.stay()
+
+@superState('gameControllerResponder')
+def gamePlaying(player):
+    if player.firstFrame():
+        player.gainsOff()
+
+        joints = constructTuple(player)
+        player.kick = player.kick + (joints,)
+
+    return player.stay()
+
+@superState('gameControllerResponder')
 def gamePenalized(player):
     if player.firstFrame():
         player.gainsOff()
-        player.wasPenalized = True
+
+        joints = constructTuple(player)
+        player.kick = player.kick + (joints,)
 
     return player.stay()
 
