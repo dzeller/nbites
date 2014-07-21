@@ -11,6 +11,7 @@ class FallController():
         self.standDelay = 0
         self.startStandupTime = 0
         self.standupMoveTime = 0
+        self.standUpRight = True
 
         self.enabled = True
 
@@ -47,11 +48,20 @@ class FallController():
 
             move = None
             if (self.brain.interface.fallStatus.on_front):
-                move = SweetMoves.STAND_UP_FRONT
+                if self.standUpRight:
+                    move = SweetMoves.STAND_UP_FRONT_RIGHT
+                else:
+                    move = SweetMoves.STAND_UP_FRONT_LEFT
             else:
-                move = SweetMoves.STAND_UP_BACK
+                if self.standUpRight:
+                    move = SweetMoves.STAND_UP_BACK_RIGHT
+                else:
+                    move = SweetMoves.STAND_UP_BACK_LEFT
+
 
             self.brain.player.executeMove(move)
+
+            self.standUpRight = !self.standUpRight
 
             self.standupMoveTime = SweetMoves.getMoveTime(move)
             self.startStandupTime = self.brain.time

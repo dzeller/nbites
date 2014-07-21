@@ -102,7 +102,7 @@ ZERO_POS = (((0.,0.,0.,0.),
 #                     *
 #**********************
 
-STAND_UP_FRONT = (#Initial
+STAND_UP_FRONT_RIGHT = (#Initial
                   ((74.9, 6.4, 94.8, -20.7),
                    (3.1, 1.9, 0.4, -4.3, 55.3, -0.8),
                    (0.0, 0.1, 2.5, -5.8, 61.1, 2.2),
@@ -179,8 +179,10 @@ STAND_UP_FRONT = (#Initial
                   INITIAL_POS[0][3],
                   1,0, stiff.STANDUP_STIFFNESSES) )
 
+STAND_UP_FRONT_LEFT = mirrorMove(STAND_UP_FRONT_RIGHT)
+
 # new robots
-STAND_UP_BACK = (
+STAND_UP_BACK_RIGHT = (
                  (INITIAL_POS[0][0],
                   INITIAL_POS[0][1],
                   INITIAL_POS[0][2],
@@ -271,6 +273,8 @@ STAND_UP_BACK = (
                   INITIAL_POS[0][3],
                   1,0, stiff.STANDUP_STIFFNESSES)
                  )
+
+STAND_UP_BACK_LEFT = mirrorMove(STAND_UP_BACK_RIGHT)
 
 #**********************
 #                     *
