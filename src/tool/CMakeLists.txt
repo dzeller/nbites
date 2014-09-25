@@ -108,6 +108,7 @@ add_subdirectory( ${MAN_DIR}/localization ${CMAKE_CURRENT_BINARY_DIR}/man/locali
 add_subdirectory( ${MAN_DIR}/vision ${CMAKE_CURRENT_BINARY_DIR}/man/vision)
 
 # Actual subdirectories!
+add_subdirectory( ballimage )
 add_subdirectory( ballview )
 add_subdirectory( calibrator )
 add_subdirectory( colorcreator )
@@ -172,6 +173,23 @@ set( ball_headers
   DataSelector.h
 
   BallTool.h
+)
+
+#BallImage
+set( ballimage_srcs ballimage_main.cpp
+  EmptyTool.cpp
+  ToolDiagram.cpp
+  DataSelector.cpp
+
+  BallImageTool.cpp
+)
+
+set( ballimage_headers
+  EmptyTool.h
+  ToolDiagram.h
+  DataSelector.h
+
+  BallImageTool.h
 )
 
 # VisionTool
@@ -249,6 +267,7 @@ set( installer_headers
 Qt4_wrap_cpp( tool_headers_moc ${tool_headers} )
 Qt4_wrap_cpp( loc_headers_moc ${loc_headers} )
 Qt4_wrap_cpp( ball_headers_moc ${ball_headers} )
+Qt4_wrap_cpp( ballimage_headers_moc ${ballimage_headers} )
 Qt4_wrap_cpp( vision_headers_moc ${vision_headers} )
 Qt4_wrap_cpp( calibrate_headers_moc ${calibrate_headers} )
 Qt4_wrap_cpp( playbook_headers_moc ${playbook_headers} )
@@ -319,6 +338,23 @@ target_link_libraries(
   tool_common
   image_display
   balltrack
+  ${QT_LIBRARIES}
+  )
+
+# The BallImageTool executable
+add_executable( ballimage_tool
+  ${ballimage_srcs}
+  ${ballimage_headers_moc} )
+
+target_link_libraries(
+  ballimage_tool
+  portals
+  messages
+  unlog
+  logview
+  ballimage
+  tool_common
+  image_display
   ${QT_LIBRARIES}
   )
 

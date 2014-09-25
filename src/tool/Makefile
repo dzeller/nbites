@@ -11,6 +11,7 @@ FLAGS        = -DCMAKE_TOOLCHAIN_FILE=$(TOOLCHAIN)
 EXECUTABLE = tool
 LOC_EXECUTABLE = loc_tool
 BALL_EXECUTABLE = ball_tool
+BALLIMAGE_EXECUTABLE = ballimage_tool
 VISION_EXECUTABLE = vision_tool
 CALIBRATE_EXECUTABLE = calibrate_tool
 PLAYBOOK_EXECUTABLE = playbook_tool
@@ -54,6 +55,19 @@ ball: build_ball
 	@echo "Running ball_tool executable."
 	@cd $(BUILD_DIR); \
 	./$(BALL_EXECUTABLE)
+
+.PHONY:build_ballimage
+build_ballimage:
+	mkdir -p $(BUILD_DIR)
+	cd $(BUILD_DIR); \
+	cmake $(FLAGS) $(SRC_DIR); \
+	$(MAKE) --no-print-directory $(BALLIMAGE_EXECUTABLE)
+
+.PHONY: ballimage
+ballimage: build_ballimage
+	@echo "Running ballimage_tool executable."
+	@cd $(BUILD_DIR); \
+	./$(BALLIMAGE_EXECUTABLE)
 
 .PHONY: build_vision
 build_vision:
