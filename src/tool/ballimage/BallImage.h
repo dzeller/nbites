@@ -36,9 +36,10 @@ public:
 protected slots:
     void imageClicked(int x, int y, int brushSize, bool leftClick);
     void imageTabChanged(int i);
+    void filterTabChanged(int i);
     void toggleSigmoid(bool toggled);
-    void sigmoidMinChanged();
-    void sigmoidMaxChanged();
+    void dotSigmoidMinChanged();
+    void dotSigmoidMaxChanged();
 
 protected:
     virtual void run_();
@@ -59,13 +60,23 @@ private:
     Camera::Type currentCamera;
 
     QHBoxLayout* mainLayout;
+
     QTabWidget* imageTabs;
-    QLineEdit* sigmoidMin;
-    QLineEdit* sigmoidMax;
+    QTabWidget* filterMethodTabs;
+
+    QLineEdit* dotSigmoidMin;
+    QLineEdit* dotSigmoidMax;
+
+    QLineEdit* thetaSigmoidMin;
+    QLineEdit* thetaSigmoidMax;
+    QLineEdit* radiusSigmoidMin;
+    QLineEdit* radiusSigmoidMax;
+
+    bool useDotProduct;
 
     double uVector, vVector;
     bool useSigmoid;
-    int sigMin, sigMax;
+    int dotSigMin, dotSigMax;
 
     QLabel imagePlaceholder;
 //    QImage ballImage;

@@ -7,6 +7,7 @@ namespace ballimage{
 BallImage::BallImage(QWidget *parent) :
     QWidget(parent),
     imageTabs(new QTabWidget(this)),
+    filterMethodTabs(new QTabWidget(this)),
     topDisplay(this),
     bottomDisplay(this),
     topImage(base()),
@@ -15,8 +16,8 @@ BallImage::BallImage(QWidget *parent) :
     uVector(sqrt(2)),
     vVector(sqrt(2)),
     useSigmoid(false),
-    sigMin(4),
-    sigMax(8)
+    dotSigMin(4),
+    dotSigMax(8)
 {
     imagePainters.addModule(topDisplay);
     imagePainters.addModule(bottomDisplay);
@@ -29,25 +30,44 @@ BallImage::BallImage(QWidget *parent) :
     imageTabs->addTab(&bottomDisplay, "BottomImage");
     mainLayout->addWidget(imageTabs);
 
-    QHBoxLayout* aboveBall = new QHBoxLayout;
+    QWidget* dotWidget = new QWidget;
+    QHBoxLayout* aboveBallDot = new QHBoxLayout(dotWidget);
     QCheckBox* sigmoid = new QCheckBox(tr("Use sigmoid filter"));
-    sigmoidMin = new QLineEdit(tr("4"));
-    sigmoidMax = new QLineEdit(tr("8"));
-    aboveBall->addWidget(sigmoid);
-    aboveBall->addWidget(sigmoidMin);
-    aboveBall->addWidget(sigmoidMax);
+    dotSigmoidMin = new QLineEdit(tr("4"));
+    dotSigmoidMax = new QLineEdit(tr("8"));
+    aboveBallDot->addWidget(sigmoid);
+    aboveBallDot->addWidget(dotSigmoidMin);
+    aboveBallDot->addWidget(dotSigmoidMax);
+    dotWidget->setLayout(aboveBallDot);
+
+    QWidget* rangeWidget = new QWidget;
+    QHBoxLayout* aboveBallRange = new QHBoxLayout(rangeWidget);
+    thetaSigmoidMin = new QLineEdit(tr("4"));
+    thetaSigmoidMax = new QLineEdit(tr("8"));
+    radiusSigmoidMin = new QLineEdit(tr("4"));
+    radiusSigmoidMax = new QLineEdit(tr("8"));
+    aboveBallRange->addWidget(thetaSigmoidMin);
+    aboveBallRange->addWidget(thetaSigmoidMax);
+    aboveBallRange->addWidget(radiusSigmoidMin);
+    aboveBallRange->addWidget(radiusSigmoidMax);
+    rangeWidget->setLayout(aboveBallRange);
+
+    filterMethodTabs->addTab(dotWidget, "Dot Product Method");
+    filterMethodTabs->addTab(rangeWidget, "Range of Vectors");
+    filterMethodTabs->resize(0,0); // HACK to make the tabs smaller
 
     connect(sigmoid, SIGNAL(toggled(bool)),
             this, SLOT(toggleSigmoid(bool)));
-    connect(sigmoidMin, SIGNAL(editingFinished()),
-            this, SLOT(sigmoidMinChanged()));
-    connect(sigmoidMax, SIGNAL(editingFinished()),
-            this, SLOT(sigmoidMaxChanged()));
+    connect(dotSigmoidMin, SIGNAL(editingFinished()),
+            this, SLOT(dotSigmoidMinChanged()));
+    connect(dotSigmoidMax, SIGNAL(editingFinished()),
+            this, SLOT(dotSigmoidMaxChanged()));
 
 
     QVBoxLayout* right = new QVBoxLayout;
     imagePlaceholder.setAlignment(Qt::AlignTop);
-    right->addLayout(aboveBall);
+
+    right->addWidget(filterMethodTabs);
     right->addWidget(&imagePlaceholder);
     mainLayout->addLayout(right);
 
@@ -57,8 +77,11 @@ BallImage::BallImage(QWidget *parent) :
             this, SLOT(imageClicked(int, int, int, bool)));
     connect(&bottomDisplay, SIGNAL(mouseClicked(int, int, int, bool)),
             this, SLOT(imageClicked(int, int, int, bool)));
+
     connect(imageTabs, SIGNAL(currentChanged(int)),
             this, SLOT(imageTabChanged(int)));
+    connect(filterMethodTabs, SIGNAL(currentChanged(int)),
+            this, SLOT(filterTabChanged(int)));
 }
 
 void BallImage::run_()
@@ -127,11 +150,11 @@ void BallImage::applySigmoid(double* upix, double* vpix)
     // Scaling *small* magnitude vectors to 0
     int magnitude = sqrt((*upix) * (*upix) + (*vpix) * (*vpix));
     double scale = 0;
-    if(sigMin < magnitude && sigMax > magnitude)
+    if(dotSigMin < magnitude && dotSigMax > magnitude)
     {
-        scale = (magnitude - sigMin)/(sigMax-sigMin);
+        scale = (magnitude - dotSigMin)/(dotSigMax-dotSigMin);
     }
-    else if(sigMax < magnitude)
+    else if(dotSigMax < magnitude)
     {
         scale = 1;
     }
@@ -191,56 +214,68 @@ void BallImage::imageTabChanged(int i)
     updateBallImages();
 }
 
+void BallImage::filterTabChanged(int i)
+{
+    // Check if there is a valid widget yet or not.
+    // We get this signal when we close the tool.
+    if (i == -1)
+        return;
+    std::cout << "Filter tab switched";
+
+    useDotProduct = !useDotProduct;
+
+}
+
 void BallImage::toggleSigmoid(bool toggled)
 {
     useSigmoid = toggled;
     updateBallImages();
 }
 
-void BallImage::sigmoidMinChanged()
+void BallImage::dotSigmoidMinChanged()
 {
     bool good;
-    int newMin = sigmoidMin->text().toInt(&good);
+    int newMin = dotSigmoidMin->text().toInt(&good);
 
     if(good)
     {
-        if (newMin<sigMax)
+        if (newMin<dotSigMax)
         {
-            sigMin = newMin;
+            dotSigMin = newMin;
             std::cout<<"min changed to: "<<newMin << std::endl;
         }
         else
         {
-            sigmoidMin->setText(tr("Min must be < Max"));
+            dotSigmoidMin->setText(tr("Min must be < Max"));
         }
     }
     else
     {
-        sigmoidMin->setText(tr("Must be integer value"));
+        dotSigmoidMin->setText(tr("Must be integer value"));
     }
     updateBallImages();
 }
 
-void BallImage::sigmoidMaxChanged()
+void BallImage::dotSigmoidMaxChanged()
 {
     bool good;
-    int newMax = sigmoidMax->text().toInt(&good);
+    int newMax = dotSigmoidMax->text().toInt(&good);
 
     if(good)
     {
-        if (newMax>sigMin)
+        if (newMax>dotSigMin)
         {
-            sigMax = newMax;
+            dotSigMax = newMax;
             std::cout<<"max changed to: "<<newMax << std::endl;
         }
         else
         {
-            sigmoidMax->setText(tr("Min must be < Max"));
+            dotSigmoidMax->setText(tr("Min must be < Max"));
         }
     }
     else
     {
-        sigmoidMax->setText(tr("Must be integer value"));
+        dotSigmoidMax->setText(tr("Must be integer value"));
     }
     updateBallImages();
 }
