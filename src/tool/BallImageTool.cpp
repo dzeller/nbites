@@ -6,7 +6,7 @@ BallImageTool::BallImageTool(const char* title) :
     ballImage(this),
     EmptyTool(title)
 {
-    toolTabs->addTab(&ballImage, tr("BallImageeeeeeeeeeeeeee"));
+    toolTabs->addTab(&ballImage, tr("BallImage"));
 
     connect(&diagram, SIGNAL(signalUnloggersReady()),
             this, SLOT(setUpModules()) );

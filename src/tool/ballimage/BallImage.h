@@ -22,12 +22,15 @@
 namespace tool{
 namespace ballimage{
 
+class Blob;
+class Color;
+
 class BallImage: public QWidget, public portals::Module
 {
     Q_OBJECT;
 public:
     BallImage(QWidget* parent = 0);
-    ~BallImage(){}
+    ~BallImage();
 
 public:
     portals::InPortal<messages::YUVImage> topImageIn;
@@ -36,8 +39,8 @@ public:
 protected slots:
     void imageClicked(int x, int y, int brushSize, bool leftClick);
     void imageTabChanged(int i);
-    void filterTabChanged(int i);
     void toggleSigmoid(bool toggled);
+    void togglePaintBlobs(bool toggled);
     void dotSigmoidMinChanged();
     void dotSigmoidMaxChanged();
 
@@ -46,9 +49,25 @@ protected:
 
 private:
     void updateBallImages();
-    void applySigmoid(double* upix, double* vpix);
+    void paintBallImages();
+    void applySigmoid(double* ypix, double* upix, double* vpix);
+    void allocateBallImage();
+    int buildMask(int topSetBit, int bottomSetBit);
+    void findBlobs();
+    void blobFrom(int x, int y, Blob* blob);
+    Color* blobColor(int blobID);
+    bool inBounds(int x, int y);
 
 private:
+    int** ballImage;
+    int** blobImage;
+    int yHeight, yWidth;
+
+    int orangeThresh;
+
+    std::vector<Blob*> blobs;
+    Color* black;
+
     image::ImageDisplayListener topDisplay;
     image::ImageDisplayListener bottomDisplay;
 
@@ -62,24 +81,69 @@ private:
     QHBoxLayout* mainLayout;
 
     QTabWidget* imageTabs;
-    QTabWidget* filterMethodTabs;
 
     QLineEdit* dotSigmoidMin;
     QLineEdit* dotSigmoidMax;
 
+    QLineEdit* thetaBase;
     QLineEdit* thetaSigmoidMin;
     QLineEdit* thetaSigmoidMax;
     QLineEdit* radiusSigmoidMin;
     QLineEdit* radiusSigmoidMax;
 
-    bool useDotProduct;
+    bool useDotProduct, paintBlobs;
 
-    double uVector, vVector;
+    double yVector, uVector, vVector;
     bool useSigmoid;
     int dotSigMin, dotSigMax;
+
+    int xpos, ypos;
 
     QLabel imagePlaceholder;
 //    QImage ballImage;
 };
+
+class Blob{
+public:
+    Blob(int bID = 0);
+    //~Blob() {};
+
+    void addPixel(int x, int y, double rating);
+
+    int getID(){ return blobID; }
+
+    double getSum(){ return sumWeights; };
+    double getDensity(){ return sumWeights/count; };
+    double getMeanX(){ return sumX/sumWeights; };
+    double getMeanY(){ return sumY/sumWeights; };
+    void setColor(Color* c){ color = c; };
+    Color* getColor(){ return color; };
+    double getAspect(){ return secondLength/firstLength; };
+
+    double getFirstLength(){ compute(); return firstLength; };
+    double getSecondLength(){ compute(); return secondLength; };
+    double getAspectRatio() { compute(); return aspectRatio; };
+
+private:
+    void compute();
+private:
+    int blobID;
+    Color* color;
+    int count;
+    double sumWeights, sumX, sumY, sumX2, sumY2, sumXY;
+    double mx, my, mxy, length;
+    double firstLength, secondLength, aspectRatio;
+};
+
+class Color{
+public:
+    Color(int r = 0, int g = 0, int b = 0) { red=r; green=g; blue=b; };
+    int getRed() { return red; };
+    int getGreen() { return green; };
+    int getBlue() { return blue; };
+private:
+    int red, green, blue;
+};
+
 }
 }
