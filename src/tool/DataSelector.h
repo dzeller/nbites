@@ -23,6 +23,8 @@ public:
     DataSelector(QWidget *parent = 0);
     ~DataSelector();
 
+    std::string getCurrentLog();
+
 signals:
     void signalNewDataSet(std::vector<std::string> files);
 

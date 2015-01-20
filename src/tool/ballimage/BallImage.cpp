@@ -17,8 +17,8 @@ BallImage::BallImage(QWidget *parent) :
     topImage(base()),
     bottomImage(base()),
     currentCamera(Camera::TOP),
-    uVector(sqrt(2)),
-    vVector(sqrt(2)),
+    uVector(-0.374194),
+    vVector(0.92735),
     useSigmoid(true),
     paintBlobs(false),
     dotSigMin(4),
@@ -48,18 +48,16 @@ BallImage::BallImage(QWidget *parent) :
     aboveBallDot->addWidget(dotSigmoidMin);
     aboveBallDot->addWidget(dotSigmoidMax);
 
-    QHBoxLayout* aboveBallRange = new QHBoxLayout;
-    thetaSigmoidMin = new QLineEdit(tr("4"));
-    thetaSigmoidMax = new QLineEdit(tr("8"));
-    radiusSigmoidMin = new QLineEdit(tr("4"));
-    radiusSigmoidMax = new QLineEdit(tr("8"));
-    aboveBallRange->addWidget(thetaSigmoidMin);
-    aboveBallRange->addWidget(thetaSigmoidMax);
-    aboveBallRange->addWidget(radiusSigmoidMin);
-    aboveBallRange->addWidget(radiusSigmoidMax);
+    QHBoxLayout* stats = new QHBoxLayout;
+    logPath = new QLineEdit;
+    QPushButton* clearStats = new QPushButton(tr("clear stats"));
+    QPushButton* writeStats = new QPushButton(tr("write stats"));
+    stats->addWidget(logPath);
+    stats->addWidget(clearStats);
+    stats->addWidget(writeStats);
 
     aboveBall->addLayout(aboveBallDot);
-    //aboveBall->addLayout(aboveBallRange);
+    aboveBall->addLayout(stats);
 
     connect(paintBlobs, SIGNAL(toggled(bool)),
             this, SLOT(togglePaintBlobs(bool)));
@@ -69,6 +67,11 @@ BallImage::BallImage(QWidget *parent) :
             this, SLOT(dotSigmoidMinChanged()));
     connect(dotSigmoidMax, SIGNAL(editingFinished()),
             this, SLOT(dotSigmoidMaxChanged()));
+
+    connect(clearStats, SIGNAL(clicked()),
+            this, SLOT(resetStats()));
+    connect(writeStats, SIGNAL(clicked()),
+            this, SLOT(writeStatistics()));
 
     imagePlaceholder.setAlignment(Qt::AlignTop);
 
@@ -124,7 +127,43 @@ void BallImage::run_()
                             &bottomImageIn.message()));
     imagePainters.run();
 
+    resetStats();
     updateBallImages();
+}
+
+double BallImage::rateBlob(Blob* b)
+{
+    double part = b->getAspectRatio() * b->getDensity();
+
+    //double area = M_PI * pow(b->getSecondLength()/2, 2);
+
+    return part;// * area / b->getSum();
+}
+
+void BallImage::writeStatistics()
+{
+    std::cout << "Balls in log ' " << logPath->text().toStdString() <<"'" << std::endl;
+    for(int j=0; j<blobs.size(); j++){
+        Blob* b = blobs.at(j);
+        bool containsBall = false;
+        for(int i=0; i<balls.size(); i++){
+            point_ ball = balls.at(i);
+            if(b->contains(ball)){
+                std::cout << "Ball " << i << " contained in blob with confidence: "
+                          << b->getAspect() * b->getDensity() * 255 << std::endl;
+                containsBall = true;
+                balls.erase(balls.begin() + i);
+                break;
+            }
+        }
+        if(!containsBall && b->getAspect() * b->getDensity() > 0.8){
+            std::cout << "Blob with confidence " <<
+                b->getAspect() * b->getDensity() * 255 << " at " <<
+                b->getMeanX() << " " << b->getMeanY() <<
+                " contained no ball!" << std::endl;
+        }
+    }
+
 }
 
 void BallImage::updateBallImages()
@@ -253,13 +292,13 @@ void BallImage::findBlobs()
         }
     }
 
-    std::cout << "Found " << blobs.size() << " blobs " << blobNumber<<"\n";
-    for(int i=0; i<blobs.size(); i++){
-        std::cout << "blob: " << i << " had " << blobs.at(i)->getSum() <<
-            " pixels with density: " << blobs.at(i)->getDensity() << std::endl;
-        std::cout << "    Length1: " << blobs.at(i)->getFirstLength() <<
-            "  Length2: " << blobs.at(i)->getSecondLength() << std::endl;
-    }
+    // std::cout << "Found " << blobs.size() << " blobs " << blobNumber<<"\n";
+    // for(int i=0; i<blobs.size(); i++){
+    //     std::cout << "blob: " << i << " had " << blobs.at(i)->getSum() <<
+    //         " pixels with density: " << blobs.at(i)->getDensity() << std::endl;
+    //     std::cout << "    Length1: " << blobs.at(i)->getFirstLength() <<
+    //         "  Length2: " << blobs.at(i)->getSecondLength() << std::endl;
+    // }
 }
 
 void BallImage::blobFrom(int x, int y, Blob* blob)
@@ -289,7 +328,7 @@ Color* BallImage::blobColor(int blobID){
         if(blobID == blobs.at(i)->getID())
         {
             Blob* b = blobs.at(i);
-            double rating = b->getAspectRatio() * b->getDensity();
+            double rating = rateBlob(b);//b->getAspectRatio() * b->getDensity();
             int green = rating * 255;
             int red = (1 - rating) * 255;
             return new Color(red, green, 0.0);
@@ -326,21 +365,6 @@ void BallImage::applySigmoid(double* ypix, double* upix, double* vpix)
     *vpix = (*vpix)*scale;
 }
 
-// void BallImage::buildColors()
-// {
-//     int inc = 80;
-//     Color* black = new Color(0,0,0);
-//     colors.push_back(black);
-//     for(int r = 0; r < 6; r++){
-//         for(int g =0; g < 6; g++){
-//             for (int b =0; b <4; b++){
-//                 Color* c = new Color(255-40*r, 255-40*g, 255-40*b);
-//                 colors.push_back(c);
-//             }
-//         }
-//     }
-// }
-
 void BallImage::imageClicked(int x, int y, int brushSize, bool leftClick)
 {
 
@@ -364,12 +388,10 @@ void BallImage::imageClicked(int x, int y, int brushSize, bool leftClick)
     int upix = uImage.getPixel(x/2, y) - (255/2);
     int vpix = vImage.getPixel(x/2, y) - (255/2);
 
-    std::cout << "At click:" << std::endl;
-    std::cout << "yPix: " << ypix << " upix: " << upix << " vpix: " << vpix << std::endl;
-
     if(!leftClick){
         xpos = x;
         ypos = y;
+        ballClicked(x, y);
         return;
     }
     // Normalize
@@ -377,7 +399,21 @@ void BallImage::imageClicked(int x, int y, int brushSize, bool leftClick)
     uVector = upix / sqrt(upix*upix+vpix*vpix);
     vVector = vpix / sqrt(upix*upix+vpix*vpix);
 
+    std::cout << "At click:" << std::endl;
+    std::cout << "yPix: " << ypix << " upix: " << upix << " vpix: " << vpix << std::endl;
+    std::cout << "vector is: <" << yVector << ", " << uVector << ", " << vVector << ">"<< std::endl;
+
     updateBallImages();
+}
+
+void BallImage::ballClicked(int x, int y){
+    point_ location = {(double)x, (double)y};
+    balls.push_back(location);
+}
+
+void BallImage::resetStats()
+{
+    balls.clear();
 }
 
 void BallImage::imageTabChanged(int i)
@@ -505,6 +541,14 @@ void Blob::compute()
     firstLength = sqrt((mx + my + length) / 2) / sumWeights;
     secondLength = sqrt((mx + my - length) / 2) / sumWeights;
     aspectRatio = secondLength / firstLength;
+}
+
+bool Blob::contains(point_ location)
+{
+    compute();
+    point_ center = {getMeanX(), getMeanY()};
+    double distance = hypot(location.x - center.x, location.y - center.y);
+    return (distance < secondLength);
 }
 
 }//ballview

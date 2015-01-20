@@ -28,6 +28,11 @@ DataSelector::DataSelector(QWidget* parent) : QWidget(parent)
 DataSelector::~DataSelector() {
 }
 
+std::string DataSelector::getCurrentLog()
+{
+    return logPathLabel->text().toStdString();
+}
+
 void DataSelector::setupLogLabels() {
 
     logLabel = new QLabel(this);

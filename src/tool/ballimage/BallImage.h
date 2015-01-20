@@ -24,6 +24,7 @@ namespace ballimage{
 
 class Blob;
 class Color;
+struct point_;
 
 class BallImage: public QWidget, public portals::Module
 {
@@ -43,6 +44,8 @@ protected slots:
     void togglePaintBlobs(bool toggled);
     void dotSigmoidMinChanged();
     void dotSigmoidMaxChanged();
+    void resetStats();
+    void writeStatistics();
 
 protected:
     virtual void run_();
@@ -57,6 +60,12 @@ private:
     void blobFrom(int x, int y, Blob* blob);
     Color* blobColor(int blobID);
     bool inBounds(int x, int y);
+
+    double rateBlob(Blob* b);
+
+    // Statistics functions
+    void ballClicked(int x, int y);
+
 
 private:
     int** ballImage;
@@ -84,12 +93,7 @@ private:
 
     QLineEdit* dotSigmoidMin;
     QLineEdit* dotSigmoidMax;
-
-    QLineEdit* thetaBase;
-    QLineEdit* thetaSigmoidMin;
-    QLineEdit* thetaSigmoidMax;
-    QLineEdit* radiusSigmoidMin;
-    QLineEdit* radiusSigmoidMax;
+    QLineEdit* logPath;
 
     bool useDotProduct, paintBlobs;
 
@@ -100,7 +104,9 @@ private:
     int xpos, ypos;
 
     QLabel imagePlaceholder;
-//    QImage ballImage;
+
+    // For stats gathering
+    std::vector<point_> balls;
 };
 
 class Blob{
@@ -124,6 +130,9 @@ public:
     double getSecondLength(){ compute(); return secondLength; };
     double getAspectRatio() { compute(); return aspectRatio; };
 
+    // NOT a smart solution. Treats blob as a circle with radius of secondLength
+    bool contains(point_ location);
+
 private:
     void compute();
 private:
@@ -143,6 +152,11 @@ public:
     int getBlue() { return blue; };
 private:
     int red, green, blue;
+};
+
+struct point_{
+    double x;
+    double y;
 };
 
 }
