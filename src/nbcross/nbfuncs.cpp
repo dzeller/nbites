@@ -43,6 +43,13 @@ int arg_test_func() {
     return 0;
 }
 
+int imageConverterFunc() {
+    printf("image converter()\n");
+    assert(args.size() == 1);
+
+    return 0;    
+}
+
 void register_funcs() {
     
     /*test func (no args)*/
@@ -66,4 +73,17 @@ void register_funcs() {
     arg_test.arg_names[4] = sParticleSwarm_pbuf;
     arg_test.func = arg_test_func;
     FUNCS.push_back(arg_test);
+
+    nbfunc_t image_converter;
+    image_converter.name = (char *) "image converter";
+    image_converter.num_args = 1;
+    image_converter.arg_names = (char **) malloc(sizeof(char *) * 1);
+    image_converter.arg_names[0] = sYUVImage;
+    image_converter.func = NULL;
+    FUNCS.push_back(image_converter);
 }
+
+
+
+
+
