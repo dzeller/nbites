@@ -9,6 +9,13 @@
 #include "nbfuncs.h"
 #include <assert.h>
 #include <vector>
+#include <iostream>
+#include <math.h>
+#include <string>
+
+#include "Images.h"
+#include "image/ImageConverterModule.cpp"
+#include "RoboGrams.h"
 
 std::vector<nbfunc_t> FUNCS;
 
@@ -28,7 +35,7 @@ int test_func() {
         printf("test_func(): %s\n", args[i].desc);
         rets.push_back(args[i]);
     }
-    
+
     return 0;
 }
 
@@ -39,7 +46,7 @@ int arg_test_func() {
     for (int i = 0; i < NUM_ARG_FOR_ARG_TEST_FUNC; ++i) {
         printf("\t%s\n", args[i].desc);
     }
-    
+
     return 0;
 }
 
@@ -47,7 +54,44 @@ int imageConverterFunc() {
     printf("image converter()\n");
     assert(args.size() == 1);
 
-    return 0;    
+    for(int i=0; i<args.size(); i++){
+        std::cout << args[i].desc << std::endl;
+    }
+
+    int width, height;
+
+    sscanf(args[0].desc, "width=%d height=%d", &width, &height);
+
+    messages::YUVImage image(args[0].data, width, height, width);
+    portals::Message<messages::YUVImage> message(&image);
+    man::image::ImageConverterModule module;
+
+    module.imageIn.setMessage(message);
+    module.run();
+
+    const messages::PackedImage<short unsigned int>* yImage = module.yImage.getMessage(true).get();
+    const messages::PackedImage<short unsigned int>* uImage = module.uImage.getMessage(true).get();
+    const messages::PackedImage<short unsigned int>* vImage = module.vImage.getMessage(true).get();
+
+    nbopaquelog_t y;
+
+    int digits = log10((double)yImage->width()) + log10((double)yImage->height()) + 2;
+    std::string tmpName;
+    tmpName.append("type=YUVImage encoding=[Y16] width=");
+    tmpName += yImage->width();
+    tmpName += " height=";
+    tmpName += yImage->height();
+
+    char* name = new char[tmpName.size() + 1];
+    memcpy(name, tmpName.c_str(), tmpName.size() + 1);
+
+    y.desc = name;
+    y.data_len = yImage->width() * yImage->height() * 2;
+    y.data = new uint8_t[yImage->width() * yImage->height() * 2];
+    memcpy(y.data, yImage->pixelAddress(0, 0), yImage->width() * yImage->height() * 2);
+
+    rets.push_back(y);
+    return 0;
 }
 
 void register_funcs() {
@@ -79,7 +123,7 @@ void register_funcs() {
     image_converter.num_args = 1;
     image_converter.arg_names = (char **) malloc(sizeof(char *) * 1);
     image_converter.arg_names[0] = sYUVImage;
-    image_converter.func = NULL;
+    image_converter.func = imageConverterFunc;
     FUNCS.push_back(image_converter);
 }
 

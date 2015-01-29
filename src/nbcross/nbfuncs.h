@@ -16,7 +16,7 @@
 typedef struct nbfunc_s {
     char * name;
     int (*func)(void) ;
-    
+
     int num_args;
     char ** arg_names;
 } nbfunc_t;
