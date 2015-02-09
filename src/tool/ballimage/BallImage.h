@@ -24,7 +24,12 @@ namespace ballimage{
 
 class Blob;
 class Color;
-struct point_;
+
+typedef struct point_{
+    double x;
+    double y;
+} Point;
+
 
 class BallImage: public QWidget, public portals::Module
 {
@@ -40,7 +45,7 @@ public:
 protected slots:
     void imageClicked(int x, int y, int brushSize, bool leftClick);
     void imageTabChanged(int i);
-    void toggleSigmoid(bool toggled);
+    void toggleEdges(bool toggled);
     void togglePaintBlobs(bool toggled);
     void dotSigmoidMinChanged();
     void dotSigmoidMaxChanged();
@@ -60,6 +65,10 @@ private:
     void blobFrom(int x, int y, Blob* blob);
     Color* blobColor(int blobID);
     bool inBounds(int x, int y);
+
+    int walkBlobEdge(Blob* b);
+    int neighborhoodState(Point pixel);
+    int nextDirection(Point current, int prevDir);
 
     double rateBlob(Blob* b);
 
@@ -98,7 +107,7 @@ private:
     bool useDotProduct, paintBlobs;
 
     double yVector, uVector, vVector;
-    bool useSigmoid;
+    bool paintEdges;
     int dotSigMin, dotSigMax;
 
     int xpos, ypos;
@@ -107,6 +116,11 @@ private:
 
     // For stats gathering
     std::vector<point_> balls;
+
+    static const int N = 0;
+    static const int E = 1;
+    static const int S = 2;
+    static const int W = 3;
 };
 
 class Blob{
@@ -119,6 +133,7 @@ public:
     int getID(){ return blobID; }
 
     double getSum(){ return sumWeights; };
+    int getCount() { return count; };
     double getDensity(){ return sumWeights/count; };
     double getMeanX(){ return sumX/sumWeights; };
     double getMeanY(){ return sumY/sumWeights; };
@@ -132,6 +147,13 @@ public:
 
     // NOT a smart solution. Treats blob as a circle with radius of secondLength
     bool contains(point_ location);
+    void setRating(double _rating) { rating = _rating; };
+    void setCircum(int _circum) { circum = _circum; };
+    double getRating() { return rating; };
+    int getCircum() { return circum; };
+    Point getTopLeft() { return topLeft; };
+
+    int getWidth() { return maxX - minX; };
 
 private:
     void compute();
@@ -142,6 +164,9 @@ private:
     double sumWeights, sumX, sumY, sumX2, sumY2, sumXY;
     double mx, my, mxy, length;
     double firstLength, secondLength, aspectRatio;
+    double rating;
+    int circum, minX, maxX;
+    Point topLeft;
 };
 
 class Color{
@@ -154,10 +179,6 @@ private:
     int red, green, blue;
 };
 
-struct point_{
-    double x;
-    double y;
-};
 
 }
 }

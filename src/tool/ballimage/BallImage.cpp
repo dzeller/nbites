@@ -19,7 +19,7 @@ BallImage::BallImage(QWidget *parent) :
     currentCamera(Camera::TOP),
     uVector(-0.374194),
     vVector(0.92735),
-    useSigmoid(true),
+    paintEdges(false),
     paintBlobs(false),
     dotSigMin(4),
     dotSigMax(8)
@@ -41,10 +41,10 @@ BallImage::BallImage(QWidget *parent) :
 
     aboveBall->addWidget(paintBlobs);
     QHBoxLayout* aboveBallDot = new QHBoxLayout;
-    QCheckBox* sigmoid = new QCheckBox(tr("Use sigmoid filter"));
+    QCheckBox* edges = new QCheckBox(tr("Paint edges"));
     dotSigmoidMin = new QLineEdit(tr("4"));
     dotSigmoidMax = new QLineEdit(tr("25"));
-    aboveBallDot->addWidget(sigmoid);
+    aboveBallDot->addWidget(edges);
     aboveBallDot->addWidget(dotSigmoidMin);
     aboveBallDot->addWidget(dotSigmoidMax);
 
@@ -61,8 +61,8 @@ BallImage::BallImage(QWidget *parent) :
 
     connect(paintBlobs, SIGNAL(toggled(bool)),
             this, SLOT(togglePaintBlobs(bool)));
-    connect(sigmoid, SIGNAL(toggled(bool)),
-            this, SLOT(toggleSigmoid(bool)));
+    connect(edges, SIGNAL(toggled(bool)),
+            this, SLOT(toggleEdges(bool)));
     connect(dotSigmoidMin, SIGNAL(editingFinished()),
             this, SLOT(dotSigmoidMinChanged()));
     connect(dotSigmoidMax, SIGNAL(editingFinished()),
@@ -135,9 +135,17 @@ double BallImage::rateBlob(Blob* b)
 {
     double part = b->getAspectRatio() * b->getDensity();
 
-    //double area = M_PI * pow(b->getSecondLength()/2, 2);
+    double area = M_PI * pow(b->getFirstLength(), 2);
 
-    return part;// * area / b->getSum();
+    //TODO: It shouldn't be 2.5 below!
+    double circumtoArea = 2 * 2.5 * (double)b->getCount() / (b->getWidth() * b->getCircum());
+    if(part > 0.7){
+        std::cout << "A to C was: " << circumtoArea << std::endl;
+        //std::cout << "Rating was: " << part << " area is: " << area << " sum is: " << b->getSum();
+        //std::cout << " firstLength: " << b->getFirstLength() << " secondLength: " << b->getSecondLength() << std::endl;
+    }
+
+    return part *  circumtoArea;// * area / b->getSum();
 }
 
 void BallImage::writeStatistics()
@@ -194,7 +202,7 @@ void BallImage::updateBallImages()
             double upix = uImage.getPixel(j/2, i) - 255/2;
             double vpix = vImage.getPixel(j/2, i) - 255/2;
 
-            if(useSigmoid) applySigmoid(&ypix, &upix, &vpix);
+            applySigmoid(&ypix, &upix, &vpix);
 
             double product = 0;
             if(upix != 0 || vpix != 0)
@@ -219,6 +227,12 @@ void BallImage::updateBallImages()
         }
     }
     findBlobs();
+    for(int i=0; i<blobs.size(); i++){
+        Blob* b = blobs.at(i);
+        int circum = walkBlobEdge(b);
+        b->setCircum(circum);
+        b->setRating(rateBlob(b));
+    }
     paintBallImages();
 }
 
@@ -247,7 +261,12 @@ void BallImage::paintBallImages()
         for( int j=0; j<yImage.width(); j++){
             int pixScale = ballImage[i][j];
             if(!paintBlobs){
-                image.setPixel(j, i, qRgb(pixScale, pixScale, pixScale));
+                if(pixScale < 1000){
+                    image.setPixel(j, i, qRgb(pixScale, pixScale, pixScale));
+                }
+                else{
+                    image.setPixel(j, i, qRgb(250, 0, 0));
+                }
             }
             else{
                 Color* c = blobColor(blobImage[i][j]);
@@ -291,14 +310,6 @@ void BallImage::findBlobs()
             }
         }
     }
-
-    // std::cout << "Found " << blobs.size() << " blobs " << blobNumber<<"\n";
-    // for(int i=0; i<blobs.size(); i++){
-    //     std::cout << "blob: " << i << " had " << blobs.at(i)->getSum() <<
-    //         " pixels with density: " << blobs.at(i)->getDensity() << std::endl;
-    //     std::cout << "    Length1: " << blobs.at(i)->getFirstLength() <<
-    //         "  Length2: " << blobs.at(i)->getSecondLength() << std::endl;
-    // }
 }
 
 void BallImage::blobFrom(int x, int y, Blob* blob)
@@ -307,7 +318,7 @@ void BallImage::blobFrom(int x, int y, Blob* blob)
     int pixelValue = ballImage[y][x];
     int blobValue = blobImage[y][x];
     if(pixelValue < orangeThresh) return;
-    if(blobImage[y][x] != 0) return; // Already part of a blob
+    if(blobImage[y][x] != 0) return; //Already part of a blob
 
     blobImage[y][x] = blobID;
 
@@ -323,12 +334,202 @@ void BallImage::blobFrom(int x, int y, Blob* blob)
     if(inBounds(x+1, y+1)) blobFrom(x+1, y+1, blob);
 }
 
+// Walks the edge of the blob and returns the circumference of the blob
+int BallImage::walkBlobEdge(Blob* b)
+{
+    Point start = b->getTopLeft();
+    Point current = b->getTopLeft();
+    int dir = N;
+    int count = 0;
+
+    do{
+        if(inBounds(current.x, current.y) && paintEdges){
+            ballImage[(int)current.y][(int)current.x] = 1000;
+        }
+        count++;
+        dir = nextDirection(current, dir);
+
+        switch(dir){
+        case N:
+            current.y -= 1;
+            break;
+        case E:
+            current.x += 1;
+            break;
+        case S:
+            current.y += 1;
+            break;
+        case W:
+            current.x -= 1;
+            break;
+        default:
+            std::cout << "Illegal direction returned! " << dir  << std::endl;
+            return 1000;
+        }
+
+    } while(current.x != start.x || current.y != start.y);
+
+    return count;
+}
+
+
+// Returns an int in range [0, 15] corresponding to the configuration of pixels
+// that are part of a blob.
+// ASSUMPTION: no two blobs can be touching.
+int BallImage::neighborhoodState(Point pixel)
+{
+    int x = pixel.x;
+    int y = pixel.y;
+
+    int state = 0;
+    if(inBounds(x-1, y-1) && blobImage[y-1][x-1]) state |= 1;
+    if(inBounds(x, y-1) && blobImage[y-1][x]) state |= 2;
+    if(inBounds(x-1, y) && blobImage[y][x-1]) state |= 4;
+    if(inBounds(x, y) && blobImage[y][x]) state |= 8;
+
+    return state;
+}
+
+int BallImage::nextDirection(Point current, int prevDir)
+{
+    int state = neighborhoodState(current);
+    // would be better as a LUT
+    switch(state){
+    case 0: return -1;
+    case 1: return W;
+    case 2: return N;
+    case 3: return W;
+    case 4: return S;
+    case 5: return S;
+    case 6:
+        if(prevDir == E) return N;
+        if(prevDir == W) return S;
+        return -1;
+    case 7: return S;
+    case 8: return E;
+    case 9:
+        if(prevDir == S) return E;
+        if(prevDir == N) return W;
+        return -1;
+    case 10: return N;
+    case 11: return W;
+    case 12: return E;
+    case 13: return E;
+    case 14: return N;
+    default: return -1;
+    }
+}
+//     Point start = b->getMinX();
+//     Point current = b->getMinX();
+//     int blobID = b->getID();
+//     int pixWalked = 0;
+
+//     int lastDir = N;
+
+//     do{
+//         ballImage[(int)current.y][(int)current.x] = 1000;
+//         // Want to check 1 direction counter-clockwise of the last dir
+//         lastDir--;
+//         // in c++ a negative mod a number will be negative... grrrrr
+//         if(lastDir<0) lastDir += 8;
+//         while(!checkPixelInDir(current, lastDir, blobID)){
+//             lastDir = (lastDir+1)%8;
+//         }
+//         if(pixWalked > 500 && pixWalked < 520){
+//             std::cout << "Currently at (" << current.x <<","<<current.y
+//                       << ") going in dir " << lastDir << std::endl;
+//         }
+//         current = shiftInDirection(current, lastDir);
+//         pixWalked++;
+//         if(pixWalked == 2000){
+//             std::cout << "We got a problem!" << std::endl;
+//             break;
+//         }
+//     } while(start.x != current.x || start.y != current.y);
+
+//     return pixWalked;
+// }
+
+// bool BallImage::checkPixelInDir(Point current, int direction, int blobID){
+//     int x = current.x;
+//     int y = current.y;
+
+//     switch(direction){
+//     case N:
+//         if(inBounds(x, y-1) && (blobImage[y-1][x] == blobID)) return true;
+//         return false;
+//     case NE:
+//         if(inBounds(x+1, y-1) && (blobImage[y-1][x+1] == blobID)) return true;
+//         return false;
+//     case E:
+//         if(inBounds(x+1, y) && (blobImage[y][x+1] == blobID)) return true;
+//         return false;
+//     case SE:
+//         if(inBounds(x+1, y+1) && (blobImage[y+1][x+1] == blobID)) return true;
+//         return false;
+//     case S:
+//         if(inBounds(x, y+1) && (blobImage[y+1][x] == blobID)) return true;
+//         return false;
+//     case SW:
+//         if(inBounds(x-1, y+1) && (blobImage[y+1][x-1] == blobID)) return true;
+//         return false;
+//     case W:
+//         if(inBounds(x-1, y) && (blobImage[y][x-1] == blobID)) return true;
+//         return false;
+//     case NW:
+//         if(inBounds(x-1, y-1) && (blobImage[y-1][x-1] == blobID)) return true;
+//         return false;
+//     default:
+//         std::cout << "DEFAULT! checkDir " << direction << std::endl;
+//         return false;
+//     }
+// }
+
+// // Yes yes, not the best way to do it... this is my playground remember!
+// Point BallImage::shiftInDirection(Point current, int direction)
+// {
+//     switch(direction){
+//     case N:
+//         current.y--;
+//         break;
+//     case NE:
+//         current.y--;
+//         current.x++;
+//         break;
+//     case E:
+//         current.x++;
+//         break;
+//     case SE:
+//         current.x++;
+//         current.y++;
+//         break;
+//     case S:
+//         current.y++;
+//         break;
+//     case SW:
+//         current.x--;
+//         current.y++;
+//         break;
+//     case W:
+//         current.x--;
+//         break;
+//     case NW:
+//         current.x--;
+//         current.y--;
+//         break;
+//     default:
+//         std::cout << "DEFAULT shiftDir"<< std::endl;
+//         break;
+//     }
+//     return current;
+// }
+
 Color* BallImage::blobColor(int blobID){
     for(int i = 0; i < blobs.size(); i++){
         if(blobID == blobs.at(i)->getID())
         {
             Blob* b = blobs.at(i);
-            double rating = rateBlob(b);//b->getAspectRatio() * b->getDensity();
+            double rating = b->getRating();//getAspectRatio() * b->getDensity();rateBlob(b);
             int green = rating * 255;
             int red = (1 - rating) * 255;
             return new Color(red, green, 0.0);
@@ -435,9 +636,9 @@ void BallImage::imageTabChanged(int i)
     updateBallImages();
 }
 
-void BallImage::toggleSigmoid(bool toggled)
+void BallImage::toggleEdges(bool toggled)
 {
-    useSigmoid = toggled;
+    paintEdges = toggled;
     updateBallImages();
 }
 
@@ -518,8 +719,13 @@ Blob::Blob(int bID) :
     sumY(0),
     sumX2(0),
     sumY2(0),
-    sumXY(0)
-{ }
+    sumXY(0),
+    minX(10000),
+    maxX(0)
+{
+    topLeft.x = 10000;
+    topLeft.y = 10000;
+}
 
 void Blob::addPixel(int x, int y, double rating)
 {
@@ -530,6 +736,20 @@ void Blob::addPixel(int x, int y, double rating)
     sumX2      += x*x*rating;
     sumY2      += y*y*rating;
     sumXY      += x*y*rating;
+
+    if(y < topLeft.y){
+        topLeft.y = y;
+        topLeft.x = x;
+    }
+    else if(y == topLeft.y){
+        if(x < topLeft.x){
+            topLeft.y = y;
+            topLeft.x = x;
+        }
+    }
+
+    if(x < minX) minX = x;
+    if(x > maxX) maxX = x;
 }
 
 void Blob::compute()
