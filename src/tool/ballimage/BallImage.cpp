@@ -2,6 +2,9 @@
 #include <math.h>
 #include <bitset>
 
+#include <stdlib.h>
+#include <time.h>
+
 namespace tool{
 namespace ballimage{
 
@@ -127,6 +130,8 @@ void BallImage::run_()
                             &bottomImageIn.message()));
     imagePainters.run();
 
+    std::cout << "__________________________________________________________" << std::endl;
+
     resetStats();
     updateBallImages();
 }
@@ -139,10 +144,13 @@ double BallImage::rateBlob(Blob* b)
 
     //TODO: It shouldn't be 2.5 below!
     double circumtoArea = 2 * 2.5 * (double)b->getCount() / (b->getWidth() * b->getCircum());
-    if(part > 0.7){
-        std::cout << "A to C was: " << circumtoArea << std::endl;
-        //std::cout << "Rating was: " << part << " area is: " << area << " sum is: " << b->getSum();
+    if(part*circumtoArea > 0.5){
+        //std::cout << "A to C was: " << circumtoArea << std::endl;
+        std::cout << "Rating was: " << part << " C2A is: " << circumtoArea << " Area: " << b->getCount() << " Rating is: " << part*circumtoArea << std::endl;
         //std::cout << " firstLength: " << b->getFirstLength() << " secondLength: " << b->getSecondLength() << std::endl;
+        Circle c = fitCircle(b);
+        std::cout << "Circle was at ("<< c.center.x << ", " << c.center.y << ") radius: " << c.radius << std::endl;
+        circles.push_back(c);
     }
 
     return part *  circumtoArea;// * area / b->getSum();
@@ -275,6 +283,18 @@ void BallImage::paintBallImages()
         }
     }
 
+    QPainter painter(&image);
+    painter.setPen(Qt::blue);
+
+    for(int i=0; i<circles.size(); i++){
+        Circle c = circles.at(i);
+        QPointF center(c.center.x, c.center.y);
+        painter.drawEllipse(center, (qreal)c.radius, (qreal)c.radius);
+        std::cout << "drew ellipse...\n";
+    }
+
+    circles.clear();
+
     imagePlaceholder.setPixmap(QPixmap::fromImage(image));
 
 }
@@ -312,6 +332,75 @@ void BallImage::findBlobs()
     }
 }
 
+Circle BallImage::fitCircle(Blob* b){
+    Point centerMass = {(double)b->getMeanX(), (double)b->getMeanY()};
+    std::cout << b->getMeanX() << " " << b->getMeanY() << " " << b->getWidth() << std::endl;
+    Circle best = {centerMass, b->getWidth()/2.0};
+    int bestRating;
+    int delta = 3.0;
+
+    std::vector<Point> edge = b->getEdge();
+    int numEdge = edge.size();
+
+    bestRating = rateCircle(best, edge, delta);
+
+    srand(time(NULL));
+
+    // for(int i=0; i<numEdge; i++){
+    //     Point p = edge.at(i);
+    //     std::cout << "Point p"<<i<< "={" << p.x << "," <<p.y <<"};"<<std::endl;
+    //     std::cout << "edges.push_back(p" << i <<");"<<std::endl;
+    // }
+
+    for(int i=0; i< numEdge / 4; i++){
+        Point one = edge.at(rand()%numEdge);
+        Point two = edge.at(rand()%numEdge);
+        Point three = edge.at(rand()%numEdge);
+
+        Circle generated = circleFromPoints(one, two, three);
+        int rating = rateCircle(generated, edge, delta);
+
+        if(rating > bestRating){
+            best = generated;
+            bestRating = rating;
+            std::cout << "Best rating was " << bestRating << " from ("<<best.center.x <<", " << best.center.y << ") rad: " << best.radius <<std::endl;
+        }
+    }
+    return best;
+}
+
+int BallImage::rateCircle(Circle c, std::vector<Point> edge, int errorThresh){
+    int count = 0;
+    Point center = c.center;
+
+    for(int i=0; i<edge.size(); i++){
+        if(hypot(center.x - edge.at(i).x, center.y - edge.at(i).y) - c.radius < errorThresh){
+            count++;
+        }
+    }
+
+    return count;
+}
+
+// Calculates the circle which intersects the three given points
+// Done by applying Cramers rule to linear system of eqtn
+Circle BallImage::circleFromPoints(Point a, Point b, Point c)
+{
+    // Based on Cramer's rule
+    double detBase = (b.x - a.x)*(c.y - a.y) - (c.x - a.x)*(b.y - a.y);
+    double constA = ((b.x*b.x - a.x*a.x) + (b.y*b.y - a.y*a.y)) / 2.0;
+    double constB = ((c.x*c.x - a.x*a.x) + (c.y*c.y - a.y*a.y)) / 2.0;
+
+    double xCenter = ((c.y-a.y)*constA - (b.y-a.y)*constB) / detBase;
+    double yCenter = ((b.x-a.x)*constB - (c.x-a.x)*constA) / detBase;
+    double radius = hypot(a.x - xCenter, a.y - yCenter);
+
+    Point center = {xCenter, yCenter};
+    Circle circle = {center, radius};
+
+    return circle;
+}
+
 void BallImage::blobFrom(int x, int y, Blob* blob)
 {
     int blobID = blob->getID();
@@ -347,6 +436,7 @@ int BallImage::walkBlobEdge(Blob* b)
             ballImage[(int)current.y][(int)current.x] = 1000;
         }
         count++;
+        b->addEdgePoint(current);
         dir = nextDirection(current, dir);
 
         switch(dir){
@@ -419,110 +509,6 @@ int BallImage::nextDirection(Point current, int prevDir)
     default: return -1;
     }
 }
-//     Point start = b->getMinX();
-//     Point current = b->getMinX();
-//     int blobID = b->getID();
-//     int pixWalked = 0;
-
-//     int lastDir = N;
-
-//     do{
-//         ballImage[(int)current.y][(int)current.x] = 1000;
-//         // Want to check 1 direction counter-clockwise of the last dir
-//         lastDir--;
-//         // in c++ a negative mod a number will be negative... grrrrr
-//         if(lastDir<0) lastDir += 8;
-//         while(!checkPixelInDir(current, lastDir, blobID)){
-//             lastDir = (lastDir+1)%8;
-//         }
-//         if(pixWalked > 500 && pixWalked < 520){
-//             std::cout << "Currently at (" << current.x <<","<<current.y
-//                       << ") going in dir " << lastDir << std::endl;
-//         }
-//         current = shiftInDirection(current, lastDir);
-//         pixWalked++;
-//         if(pixWalked == 2000){
-//             std::cout << "We got a problem!" << std::endl;
-//             break;
-//         }
-//     } while(start.x != current.x || start.y != current.y);
-
-//     return pixWalked;
-// }
-
-// bool BallImage::checkPixelInDir(Point current, int direction, int blobID){
-//     int x = current.x;
-//     int y = current.y;
-
-//     switch(direction){
-//     case N:
-//         if(inBounds(x, y-1) && (blobImage[y-1][x] == blobID)) return true;
-//         return false;
-//     case NE:
-//         if(inBounds(x+1, y-1) && (blobImage[y-1][x+1] == blobID)) return true;
-//         return false;
-//     case E:
-//         if(inBounds(x+1, y) && (blobImage[y][x+1] == blobID)) return true;
-//         return false;
-//     case SE:
-//         if(inBounds(x+1, y+1) && (blobImage[y+1][x+1] == blobID)) return true;
-//         return false;
-//     case S:
-//         if(inBounds(x, y+1) && (blobImage[y+1][x] == blobID)) return true;
-//         return false;
-//     case SW:
-//         if(inBounds(x-1, y+1) && (blobImage[y+1][x-1] == blobID)) return true;
-//         return false;
-//     case W:
-//         if(inBounds(x-1, y) && (blobImage[y][x-1] == blobID)) return true;
-//         return false;
-//     case NW:
-//         if(inBounds(x-1, y-1) && (blobImage[y-1][x-1] == blobID)) return true;
-//         return false;
-//     default:
-//         std::cout << "DEFAULT! checkDir " << direction << std::endl;
-//         return false;
-//     }
-// }
-
-// // Yes yes, not the best way to do it... this is my playground remember!
-// Point BallImage::shiftInDirection(Point current, int direction)
-// {
-//     switch(direction){
-//     case N:
-//         current.y--;
-//         break;
-//     case NE:
-//         current.y--;
-//         current.x++;
-//         break;
-//     case E:
-//         current.x++;
-//         break;
-//     case SE:
-//         current.x++;
-//         current.y++;
-//         break;
-//     case S:
-//         current.y++;
-//         break;
-//     case SW:
-//         current.x--;
-//         current.y++;
-//         break;
-//     case W:
-//         current.x--;
-//         break;
-//     case NW:
-//         current.x--;
-//         current.y--;
-//         break;
-//     default:
-//         std::cout << "DEFAULT shiftDir"<< std::endl;
-//         break;
-//     }
-//     return current;
-// }
 
 Color* BallImage::blobColor(int blobID){
     for(int i = 0; i < blobs.size(); i++){
@@ -750,6 +736,11 @@ void Blob::addPixel(int x, int y, double rating)
 
     if(x < minX) minX = x;
     if(x > maxX) maxX = x;
+}
+
+void Blob::addEdgePoint(Point p)
+{
+    edge.push_back(p);
 }
 
 void Blob::compute()

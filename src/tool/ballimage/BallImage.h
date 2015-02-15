@@ -12,6 +12,7 @@
 #include <QLineEdit>
 #include <QString>
 #include <vector>
+#include <stack>
 #include <iostream>
 
 #include "RoboGrams.h"
@@ -29,6 +30,11 @@ typedef struct point_{
     double x;
     double y;
 } Point;
+
+typedef struct circle_{
+    Point center;
+    double radius;
+} Circle;
 
 
 class BallImage: public QWidget, public portals::Module
@@ -71,9 +77,13 @@ private:
     int nextDirection(Point current, int prevDir);
 
     double rateBlob(Blob* b);
+    int rateCircle(Circle c, std::vector<Point> edge, int errorThresh);
 
     // Statistics functions
     void ballClicked(int x, int y);
+
+    Circle fitCircle(Blob* b);
+    Circle circleFromPoints(Point a, Point b, Point c);
 
 
 private:
@@ -84,6 +94,7 @@ private:
     int orangeThresh;
 
     std::vector<Blob*> blobs;
+    std::vector<Circle> circles;
     Color* black;
 
     image::ImageDisplayListener topDisplay;
@@ -129,6 +140,7 @@ public:
     //~Blob() {};
 
     void addPixel(int x, int y, double rating);
+    void addEdgePoint(Point p);
 
     int getID(){ return blobID; }
 
@@ -155,6 +167,8 @@ public:
 
     int getWidth() { return maxX - minX; };
 
+    std::vector<Point> getEdge() { return edge; }
+
 private:
     void compute();
 private:
@@ -167,6 +181,8 @@ private:
     double rating;
     int circum, minX, maxX;
     Point topLeft;
+
+    std::vector<Point> edge;
 };
 
 class Color{
