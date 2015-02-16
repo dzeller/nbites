@@ -17,6 +17,7 @@ CALIBRATE_EXECUTABLE = calibrate_tool
 PLAYBOOK_EXECUTABLE = playbook_tool
 SIM_EXECUTABLE = sim_tool
 INSTALLER_EXECUTABLE = installer_tool
+BALLTEST_EXECUTABLE = balltest_tool
 
 .PHONY: build_tool
 build_tool:
@@ -29,6 +30,19 @@ build_tool:
 tool: build_tool
 	@echo "Running tool executable."
 	@$(BUILD_DIR)/$(EXECUTABLE)
+
+.PHONY: build_balltest
+build_balltest:
+	mkdir -p $(BUILD_DIR)
+	cd $(BUILD_DIR); \
+	cmake $(FLAGS) $(SRC_DIR); \
+	$(MAKE) --no-print-directory $(BALLTEST_EXECUTABLE)
+
+.PHONY: balltest
+balltest: build_balltest
+	@echo "Running balltest_tool executable."
+	@cd $(BUILD_DIR); \
+	./$(BALLTEST_EXECUTABLE)
 
 .PHONY: build_loc
 build_loc:

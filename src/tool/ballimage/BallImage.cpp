@@ -8,8 +8,9 @@
 namespace tool{
 namespace ballimage{
 
-BallImage::BallImage(QWidget *parent) :
+BallImage::BallImage(QWidget *parent, bool toDisplay) :
     QWidget(parent),
+    usingQT(toDisplay),
     yHeight(0),
     yWidth(0),
     orangeThresh(200),

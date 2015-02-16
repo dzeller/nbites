@@ -41,7 +41,7 @@ class BallImage: public QWidget, public portals::Module
 {
     Q_OBJECT;
 public:
-    BallImage(QWidget* parent = 0);
+    BallImage(QWidget* parent = 0, bool toDisplay = true);
     ~BallImage();
 
 public:
@@ -87,6 +87,8 @@ private:
 
 
 private:
+    bool usingQT;
+
     int** ballImage;
     int** blobImage;
     int yHeight, yWidth;

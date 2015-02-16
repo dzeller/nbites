@@ -12,5 +12,6 @@ target_link_libraries(
   unlog
   portals
   messages
+  image_display
   ${PROTOBUF_LIBRARY}
 )

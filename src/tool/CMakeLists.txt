@@ -123,6 +123,7 @@ add_subdirectory( unlog )
 add_subdirectory( vision_offline )
 add_subdirectory( worldview )
 
+add_subdirectory( balltest )
 ## SOURCES ##
 
 # Full QTool
@@ -139,6 +140,10 @@ set( tool_headers
 
   Tool.h
 )
+
+set( balltest_srcs
+  balltest_main.cpp
+  )
 
 # LocTool
 set( loc_srcs loc_main.cpp
@@ -300,6 +305,15 @@ target_link_libraries(
   worldview
   playbook
   ${QT_LIBRARIES}
+  )
+
+add_executable(balltest_tool
+  ${balltest_srcs}
+  )
+
+target_link_libraries(
+  balltest_tool
+  balltest
   )
 
 # The LocTool executable
