@@ -105,10 +105,14 @@ void Blobber<T>::initializeMark()
 {
     for (int i = 0; i < height + 2; i++) {
         for (int j = 0; j < width + 2; j++) {
-            if (i == 0 || j == 0 || i == height + 1 || j == width + 1)
+            if (i == 0 || j == 0 || i == height + 1 || j == width + 1) {
                 mark[i*(width+2) + j] = 1;
-            else
+
+            }
+            else {
                 mark[i*(width+2) + j] = 0;
+                blobImage[i*(width+2) + j - 1] = 0;
+            }
         }
     }
 }
@@ -132,7 +136,7 @@ void Blobber<T>::run(NeighborRule rule, double lowThreshold, double highThreshol
     initializeNeighborRule(rule);
     list.clear();
     results.clear();
-
+    printf("HERE!\n");
     T const *p;
     uint8_t *m = mark + width + 1;
     for (int y = 0; y < height; y++) {
@@ -157,16 +161,19 @@ void Blobber<T>::run(NeighborRule rule, double lowThreshold, double highThreshol
                 } while (!list.empty());
 
                 if (blob.area() >= minArea) {
+                    printf("Pushing!\n");
                     if(blob.area() > walkThresh) {
                         walkPerimeter(x, y, &blob);
                     }
                     results.push_back(blob);
+                    printf("Pushed\n");
                 }
             }
             p += pixelPitch;
             m++;
         }
     }
+
 }
 
 template <typename T>
@@ -183,7 +190,7 @@ inline void Blobber<T>::explore(Blob &blob, T const *p, uint8_t *m,
             int x = calculateXIndex(p);
 
             // TODO! get rid of this!
-            blobImage[x + width*y] = 250;
+            blobImage[x + width*y] = 1000;
             blob.add(w, static_cast<double>(x), static_cast<double>(y));
             list.push_front(p);
         }

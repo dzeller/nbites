@@ -15,7 +15,7 @@ public final class Ballimage extends ImageParent {
 
     public Ballimage(int w, int h, byte[] d, Vector<String> ballLocs) {
 	super(w, h, d);
-
+	System.out.println("MAKING THE BALL IMAGE!!!!!!!!!!!");
 	for(String s: ballLocs) {
 	    // Strip leading and trailing braces
 	    String toAdd = s.substring(1, s.length() - 1);
@@ -31,6 +31,7 @@ public final class Ballimage extends ImageParent {
 	g.setStroke(new BasicStroke(5));
 
 	for(String ball: balls) {
+	    System.out.println("BALL IS: " + ball);
 	    String[] split = ball.split(",");
 	    if (split.length != 4) {
 		System.out.println("Ballimage had malformed ball in it: " + ball);

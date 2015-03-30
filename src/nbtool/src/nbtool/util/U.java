@@ -109,10 +109,12 @@ public class U {
 		} else if (encoding.equalsIgnoreCase("[Y8]")) {
 			ip = new Y8image(width , height, log.bytes);
 		} else if (encoding.equalsIgnoreCase("[Ball]")) {
+		    System.out.println("GOING TO MAKE A BALL IMAGE!");
 			Map<String, String> dict = log.getAttributes();
 			Vector<String> ballLocs = new Vector<String>();
 			for (int numBalls=0; ; numBalls++) {
 			    String location = dict.get("ball"+numBalls);
+			    System.out.println(log.description);
 			    if(location == null) break;
 			    ballLocs.add(location);
 			}

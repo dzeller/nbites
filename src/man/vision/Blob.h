@@ -13,7 +13,7 @@ struct point {
 class Blob {
 public:
     Blob() : sw(0), sx(0), sy(0), sx2(0), sy2(0), sxy(0),
-             mx(0), my(0), mxy(0), len(0), solved(false) {}
+             mx(0), my(0), mxy(0), len(0), solved(false), count(0) {}
     inline void add(double w, double x, double y);
     inline void addPerimeter(double x, double y);
     inline void clearPerimeter() { perimeter.clear(); }

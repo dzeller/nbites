@@ -3,11 +3,13 @@
 #include <math.h>
 #include <algorithm>
 #include <time.h>
+#include <stdio.h>
+#include <iostream>
 
 namespace man {
 namespace vision {
 
-BallDetector::BallDetector(messages::PackedImage8* orangeImage_):
+BallDetector::BallDetector(const messages::PackedImage8* orangeImage_):
 orangeImage(orangeImage_)
 {
 
@@ -15,13 +17,21 @@ orangeImage(orangeImage_)
 
 BallDetector::~BallDetector() { }
 
-void BallDetector::findBalls() {
+std::vector<std::pair<Circle,double> >& BallDetector::findBalls() {
+    printf("Before blobbing\n");
     Blobber<uint8_t> b(orangeImage->pixelAddress(0, 0), orangeImage->width(),
                        orangeImage->height(), 1, orangeImage->width());
-
+    printf("Going to run\n");
     b.run(NeighborRule::eight, 90, 100, 100, 100);
+    printf("b.run\n");
+    std::vector<Blob> blobs = b.getResult();
+    printf("getresults\n");
+    for(std::vector<Blob>::iterator i=blobs.begin(); i!=blobs.end(); i++) {
+        printf("Blob is of size: %d\n", (*i).getCount());
+        rateBlob(*i);
+    }
 
-    blobs = b.getResult();
+    return balls;
 }
 
 void BallDetector::rateBlob(Blob b) {
@@ -36,7 +46,15 @@ void BallDetector::rateBlob(Blob b) {
     std::pair<Circle, int> fit = fitCircle(b);
     double circleFit = fit.second / b.getPerimeter();
 
-    b.setRating(aspectRatio * b.density() * circleFit);
+    double rating = aspectRatio * b.density() * circleFit;
+    b.setRating(rating);
+    printf("Rating is: %f\n", rating);
+    //if (rating > .75) {
+        std::pair<Circle, double> ball;
+        ball.first = fit.first;
+        ball.second = rating;
+        balls.push_back(ball);
+//}
 }
 
 std::pair<Circle, int> BallDetector::fitCircle(Blob b)
