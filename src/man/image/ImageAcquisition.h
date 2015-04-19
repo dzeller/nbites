@@ -35,8 +35,8 @@ struct ColorClassificationValues {
         whiteCoef = S16_15(20);  // .2
 
         orangeWidth = 30;
-        orangeMaxU = -20 << 1;
-        orangeMinV = 22 << 1;
+        orangeMaxU = 0 << 1;
+        orangeMinV = 0 << 1;
         orangeCoefU = S16_15(10); 
         orangeCoefV = S16_15(10);
 
