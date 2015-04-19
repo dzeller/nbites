@@ -20,9 +20,10 @@ public:
     std::vector<Ball>& findBalls();
 
 private:
-    Ball makeBall(Blob b, bool occluded);
+    Ball makeBall(Blob& b, bool occluded);
     std::pair<Circle, int> fitCircle(Blob b);
-    std::vector<point> rateCircle(Circle c, std::vector<point> p, int delta);
+    //std::vector<point> rateCircle(Circle c, std::vector<point> p, int delta);
+    int rateCircle(Circle& c, std::vector<point>& p, int delta);
     Circle circleFromPoints(point a, point b, point c);
     Circle leastSquares(std::vector<point>& points);
     double distanceFromRadius(double rad);

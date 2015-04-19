@@ -46,7 +46,7 @@ std::vector<Ball>& BallDetector::findBalls() {
     return balls;
 }
 
-Ball BallDetector::makeBall(Blob b, bool occluded) {
+Ball BallDetector::makeBall(Blob& b, bool occluded) {
     // One rough measure of roundness
     double aspectRatio =  b.principalLength2() / b.principalLength1();
 
@@ -90,55 +90,59 @@ std::pair<Circle, int> BallDetector::fitCircle(Blob b)
     // how many iterations we need to run RANSAC for?
 
     int delta = 2;
-    std::vector<point> inliers = rateCircle(best, perimeter, delta);
-    int bestRating = inliers.size();
+    // std::vector<point> inliers = rateCircle(best, perimeter, delta);
+    // int bestRating = inliers.size();
+    int bestRating = rateCircle(best, perimeter, delta);
 
     // seed rand with current time
     srand(time(NULL));
 
     // TODO: this needs to be better!!!!
-    for (int i=0; i<numEdge / 2; i++) {
+    for (int i=0; i<numEdge / 2 && bestRating < numEdge; i++) {
         point one = perimeter.at(rand()%numEdge);
         point two = perimeter.at(rand()%numEdge);
         point three = perimeter.at(rand()%numEdge);
 
         Circle candidate = circleFromPoints(one, two, three);
-        std::vector<point> tmp = rateCircle(candidate, perimeter, delta);
-        int rating = tmp.size();
+        //std::vector<point> tmp = rateCircle(candidate, perimeter, delta);
+        //int rating = tmp.size();
+        int rating = rateCircle(candidate, perimeter, delta);
         if (rating > bestRating) {
             best = candidate;
             bestRating = rating;
-            inliers = tmp;
+            //inliers = tmp;
         }
     }
-    Circle ls = leastSquares(inliers);
-    std::vector<point> lsResult = rateCircle(ls, perimeter, delta);
-    std::cout << "RANSAC found: " << bestRating << " While LS found: " << lsResult.size() << std::endl;
+    //Circle ls = leastSquares(inliers);
+    //std::vector<point> lsResult = rateCircle(ls, perimeter, delta);
+    //std::cout << "RANSAC found: " << bestRating << " While LS found: " << lsResult.size() << std::endl;
 
     std::pair<Circle, int> ret;
-    ret.first = ls;
+    ret.first = best;
     ret.second = bestRating;
     return ret;
 }
 
 // Returns the points which were in agreement with the given circle,
 // returned points should be used in least-squares (assume they're inliers)
-std::vector<point> BallDetector::rateCircle(Circle c, std::vector<point> p, int delta)
+//std::vector<point> BallDetector::rateCircle(Circle c, std::vector<point> p, int delta)
+int BallDetector::rateCircle(Circle& c, std::vector<point>& p, int delta)
 {
     int count = 0;
     point center = c.center;
-    std::vector<point> rets;
+    //std::vector<point> rets;
 
     for (std::vector<point>::iterator i = p.begin(); i != p.end(); i++) {
         double error = hypot(center.x - (*i).x, center.y - (*i).y) - c.radius;
         error = std::max(error, error * -1);
         if (error < delta) {
             count++;
-            rets.push_back(*i);
+            //rets.push_back(*i);
         }
     }
 
-    return rets;
+//    return rets;
+    return count;
 }
 
 double BallDetector::distanceFromRadius(double rad) {

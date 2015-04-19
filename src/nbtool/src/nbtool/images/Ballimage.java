@@ -25,7 +25,7 @@ public final class Ballimage extends ImageParent {
     }
 
     public BufferedImage toBufferedImage() {
-        YUYV8888image yuv = new YUYV8888image(width, height, data);
+        YUYV8888image yuv = new YUYV8888image(width*2, height, data);
         BufferedImage intermediate = yuv.toBufferedImage();
 
         Graphics2D g = intermediate.createGraphics();
