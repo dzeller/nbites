@@ -29,6 +29,10 @@ double Blob::principalLength2()
     return sqrt((mx + my - len) / 2) / sw;
 }
 
+void Blob::printBlob() {
+    std::cout << "Area: " << sw << std::endl;
+}
+
 void Blob::solve()
 {
     mx = sw * sx2 - sx * sx;

@@ -19,7 +19,7 @@ orangeImage(orangeImage_)
 BallDetector::~BallDetector() { }
 
 std::vector<Ball>& BallDetector::findBalls() {
-    HighResTimer timer("\tBlobber");
+    //HighResTimer timer("\tBlobber");
     Blobber<uint8_t> b(orangeImage->pixelAddress(0, 0), orangeImage->width(),
                        orangeImage->height(), 1, orangeImage->width());
 
@@ -27,10 +27,11 @@ std::vector<Ball>& BallDetector::findBalls() {
 
 
     std::vector<Blob> blobs = b.getResult();
+    std::cout << "blobs size" << blobs.size() << std::endl;
 
     // First look for non-occluded balls. Making heavier use of aspect ratio
     for(std::vector<Blob>::iterator i=blobs.begin(); i!=blobs.end(); i++) {
-        timer.end("\tMakeBall");
+        //timer.end("\tMakeBall");
         Ball b = makeBall(*i, false);
         if (sanityCheck(b)) {
             balls.push_back(b);
@@ -38,16 +39,16 @@ std::vector<Ball>& BallDetector::findBalls() {
     }
 
     if (balls.size() == 0) {
-        // std::cout << "Didn't find any balls.. Let's lower our standards" << std::endl;
+        std::cout << "Didn't find any balls.. Let's lower our standards" << std::endl;
         for(std::vector<Blob>::iterator i=blobs.begin(); i!=blobs.end(); i++) {
-            timer.end("\tUnoccluded");
+            //timer.end("\tUnoccluded");
             Ball b = makeBall(*i, true);
             if (sanityCheck(b)) {
                 balls.push_back(b);
             }
         }
     }
-    timer.lap();
+//    timer.lap();
 
     return balls;
 }
@@ -56,13 +57,9 @@ Ball BallDetector::makeBall(Blob& b, bool occluded) {
     // One rough measure of roundness
     double aspectRatio =  b.principalLength2() / b.principalLength1();
 
-    double circleFit = 1;
-    std::pair<Circle, int> fit;
-    if (occluded || aspectRatio * b.density() > .5) {
-        fit = fitCircle(b);
+    std::pair<Circle, int> fit = fitCircle(b);
+    double circleFit = ((double)fit.second) / b.getPerimeter();
 
-        circleFit = ((double)fit.second) / b.getPerimeter();
-    }
     // TODO, this needs to be better
     if (occluded) {
         aspectRatio *= 1.5;

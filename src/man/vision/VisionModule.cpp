@@ -49,27 +49,19 @@ void VisionModule::run_()
 
     PROF_ENTER(P_VISION);
 
-    HighResTimer timer("Top ball");
-   
+    HighResTimer timer("Top Ball");
     BallDetector topBallDetector(&topOrangeImage.message());
     topBallDetector.findBalls();
-
-    timer.end("Bottom ball");
-
+    timer.end("bottom ball");
     BallDetector bottomBallDetector(&bottomOrangeImage.message());
     bottomBallDetector.findBalls();
-
-    timer.end("Gradient");
-
+    timer.lap();
     gradient->reset();
     EdgeDetector edgeDetector;
     edgeDetector.sobelOperator(0, topYImage.message().pixelAddress(0, 0), *gradient);
 
-    timer.end("Post");
-
     PostDetector postDetector(*gradient, topWhiteImage.message());
 
-    timer.lap();
 
     PROF_EXIT(P_VISION);
 }

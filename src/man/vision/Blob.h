@@ -24,10 +24,10 @@ public:
     double principalLength2();
 
     int getPerimeter() { return perimeter.size(); }
-    std::vector<point> getPerimeterPoints() { return perimeter; }
+    std::vector<point>& getPerimeterPoints() { return perimeter; }
     void setRating(double r) { rating = r; }
     double getRating() { return rating; }
-
+    void printBlob();
     double minX, maxX, minY, maxY;
 private:
     void solve();
