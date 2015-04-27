@@ -1,4 +1,5 @@
 #include <math.h>
+#include <iostream>
 #include "Blob.h"
 
 namespace man {

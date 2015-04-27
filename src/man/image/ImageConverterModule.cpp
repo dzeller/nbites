@@ -23,7 +23,6 @@ ImageConverterModule::ImageConverterModule()
 
 void ImageConverterModule::run_()
 {
-    std::cout << "ImageConverterMod Running" << std::endl;
     imageIn.latch();
 
     const YUVImage& yuv = imageIn.message();

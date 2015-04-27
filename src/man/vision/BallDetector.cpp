@@ -19,19 +19,18 @@ orangeImage(orangeImage_)
 BallDetector::~BallDetector() { }
 
 std::vector<Ball>& BallDetector::findBalls() {
-    //HighResTimer timer("\tBlobber");
     Blobber<uint8_t> b(orangeImage->pixelAddress(0, 0), orangeImage->width(),
                        orangeImage->height(), 1, orangeImage->width());
 
-    b.run(NeighborRule::eight, 90, 120, 10, 10);
-
+    //HighResTimer timer("Blobber");
+    b.run(NeighborRule::eight, 90, 120, 30, 30);
+    //timer.lap();
 
     std::vector<Blob> blobs = b.getResult();
-    std::cout << "blobs size" << blobs.size() << std::endl;
+    //std::cout << "blobs size " << blobs.size() << std::endl;
 
     // First look for non-occluded balls. Making heavier use of aspect ratio
     for(std::vector<Blob>::iterator i=blobs.begin(); i!=blobs.end(); i++) {
-        //timer.end("\tMakeBall");
         Ball b = makeBall(*i, false);
         if (sanityCheck(b)) {
             balls.push_back(b);
@@ -39,17 +38,15 @@ std::vector<Ball>& BallDetector::findBalls() {
     }
 
     if (balls.size() == 0) {
-        std::cout << "Didn't find any balls.. Let's lower our standards" << std::endl;
+        //std::cout << "Didn't find any balls.. Let's lower our standards" << std::endl;
         for(std::vector<Blob>::iterator i=blobs.begin(); i!=blobs.end(); i++) {
-            //timer.end("\tUnoccluded");
             Ball b = makeBall(*i, true);
             if (sanityCheck(b)) {
                 balls.push_back(b);
             }
         }
     }
-//    timer.lap();
-
+    //std::cout << "-------------------------------------" << std::endl;
     return balls;
 }
 
@@ -57,7 +54,10 @@ Ball BallDetector::makeBall(Blob& b, bool occluded) {
     // One rough measure of roundness
     double aspectRatio =  b.principalLength2() / b.principalLength1();
 
+    HighResTimer timer("RANSAC");
     std::pair<Circle, int> fit = fitCircle(b);
+    timer.lap();
+    std::cout << "Perimeter size: " << b.getPerimeter() << std::endl;
     double circleFit = ((double)fit.second) / b.getPerimeter();
 
     // TODO, this needs to be better
