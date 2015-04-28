@@ -119,16 +119,16 @@ public:
     static const bool TOP_H_FLIP = 1;
     static const bool TOP_V_FLIP = 1;
     static const bool TOP_AUTO_EXPOSURE = 0;
-    static const int TOP_BRIGHTNESS = 84;
+    static const int TOP_BRIGHTNESS = 95;
     static const int TOP_CONTRAST = 45;
-    static const int TOP_SATURATION = 120;
+    static const int TOP_SATURATION = 145;
     static const int TOP_HUE = 0;
     static const int TOP_SHARPNESS = 3;
     static const bool TOP_AUTO_WHITEBALANCE = 0;
     static const int TOP_BACKLIGHT_COMPENSATION = 0x00;
     static const int TOP_EXPOSURE = 43;
     static const int TOP_GAIN = 62;
-    static const int TOP_WHITE_BALANCE = 5500;
+    static const int TOP_WHITE_BALANCE = 6300;
     static const bool TOP_FADE_TO_BLACK = 0;
 
     // BOTTOM SETTINGS
