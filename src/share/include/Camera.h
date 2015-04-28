@@ -85,7 +85,7 @@ public:
     static const bool TOP_H_FLIP = 1;
     static const bool TOP_V_FLIP = 1;
     static const bool TOP_AUTO_EXPOSURE = 0;
-    static const int TOP_BRIGHTNESS = 95;
+    static const int TOP_BRIGHTNESS = 92;
     static const int TOP_CONTRAST = 45;
     static const int TOP_SATURATION = 145;
     static const int TOP_HUE = 0;
