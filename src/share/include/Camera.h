@@ -24,6 +24,7 @@ public:
         int saturation;
         int hue;
         int sharpness;
+        int gamma;
         bool auto_whitebalance;
         int backlight_compensation;
         int exposure;
@@ -48,6 +49,7 @@ public:
             TOP_SATURATION,
             TOP_HUE,
             TOP_SHARPNESS,
+            TOP_GAMMA,
             TOP_AUTO_WHITEBALANCE,
             TOP_BACKLIGHT_COMPENSATION,
             TOP_EXPOSURE,
@@ -68,6 +70,7 @@ public:
             BOTTOM_SATURATION,
             BOTTOM_HUE,
             BOTTOM_SHARPNESS,
+            BOTTOM_GAMMA,
             BOTTOM_AUTO_WHITEBALANCE,
             BOTTOM_BACKLIGHT_COMPENSATION,
             BOTTOM_EXPOSURE,
@@ -90,6 +93,7 @@ public:
     static const int TOP_SATURATION = 145;
     static const int TOP_HUE = 0;
     static const int TOP_SHARPNESS = 3;
+    static const int TOP_GAMMA = 220;
     static const bool TOP_AUTO_WHITEBALANCE = 0;
     static const int TOP_BACKLIGHT_COMPENSATION = 0x00;
     static const int TOP_EXPOSURE = 43;
@@ -106,6 +110,7 @@ public:
     static const int BOTTOM_SATURATION = 124;
     static const int BOTTOM_HUE = 0;
     static const int BOTTOM_SHARPNESS = 3;
+    static const int BOTTOM_GAMMA = 220;
     static const bool BOTTOM_AUTO_WHITEBALANCE = 0;
     static const int BOTTOM_BACKLIGHT_COMPENSATION = 0x00;
     static const int BOTTOM_EXPOSURE = 43;
