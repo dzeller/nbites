@@ -359,7 +359,21 @@ int Vision_func() {
         count++;
     }
 
+    man::vision::ImageLiteU8 inverseGreen = detector->getInverseGreen();
+    int igLength = inverseGreen.width() * inverseGreen.height();
+    std::string igBuff;
+    for (int i=0; i<inverseGreen.height(); i++) {
+        for (int j=0; j<inverseGreen.width(); j++) {
+            igBuff += (char) (*inverseGreen.pixelAddr(j, i));
+        }
+
+    }
+    //std::string igBuff((char*)inverseGreen.pixelAddr(), igLength);
+    allBalls.append(SExpr::keyValue("igWidth", inverseGreen.width()));
+    allBalls.append(SExpr::keyValue("igHeight", inverseGreen.height()));
+
     ballRet->setTree(allBalls);
+    ballRet->setData(igBuff);
     rets.push_back(ballRet);
 
     return 0;

@@ -26,6 +26,7 @@ public class BallView extends ViewParent implements IOFirstResponder {
     Log in;
     BufferedImage original;
     BufferedImage orange;
+    BufferedImage inverseGreen;
     Log balls;
 
     @Override
@@ -49,7 +50,8 @@ public class BallView extends ViewParent implements IOFirstResponder {
         if(orange == null) return;
         g.drawImage(original, 0, 0, original.getWidth(), original.getHeight(), null);
         drawBlobs();
-        g.drawImage(orange, 0, original.getHeight(), orange.getWidth(), orange.getHeight(), null);
+        g.drawImage(orange, 0, original.getHeight() + 3, orange.getWidth(), orange.getHeight(), null);
+        g.drawImage(inverseGreen, orange.getWidth() + 3, original.getHeight() + 3, inverseGreen.getWidth(), inverseGreen.getHeight(), null);
     }
 
     public void drawBlobs()
@@ -130,11 +132,16 @@ public class BallView extends ViewParent implements IOFirstResponder {
         Y8image o = new Y8image(otree.find("width").get(1).valueAsInt(),
                                 otree.find("height").get(1).valueAsInt(),
                                 out[3].bytes);
+        // We juggle the orange image like this so that it's not a greyscale image
         orange = new BufferedImage(o.width, o.height, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D g = orange.createGraphics();
         g.drawImage(o.toBufferedImage(), 0, 0, null);
-        //drawBlobs();
+
         balls = out[7];
+        Y8image ig = new Y8image(balls.tree().find("igWidth").get(1).valueAsInt(),
+                                 balls.tree().find("igHeight").get(1).valueAsInt(),
+                                 balls.bytes);
+        inverseGreen = ig.toBufferedImage();
     }
 
     @Override

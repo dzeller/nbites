@@ -16,11 +16,21 @@ BallDetector::BallDetector(FieldHomography* homography_, bool topCamera_):
 {
     blobber.secondThreshold(115);
     blobber.minWeight(4);
+
+    // Build dummy image so that destruction is guarenteed to succeed
+    int igw = 1;
+    int igh = 1;
+    uint8_t* buff = new uint8_t[igw * igh];
+    ImageLiteU8 ig(igw, igh, igw, buff);
+    inverseGreen = ig;
 }
 
-BallDetector::~BallDetector() { }
+BallDetector::~BallDetector()
+{
+    delete inverseGreen.pixelAddr();
+}
 
-bool BallDetector::findBall(ImageLiteU8 orange, double cameraHeight)
+bool BallDetector::findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 white, double cameraHeight)
 {
 #ifdef OFFLINE
     candidates.clear();
@@ -66,11 +76,41 @@ bool BallDetector::findBall(ImageLiteU8 orange, double cameraHeight)
         }
     }
     if (_best.confidence() > .5) {
+         Blob b = _best.getBlob();
+         int x0 = b.centerX() - b.firstPrincipalLength() * 3;
+         int y0 = b.centerY() - b.firstPrincipalLength() * 3;
+         buildInverseGreen(green, white, x0, y0, b.firstPrincipalLength()*6,
+                           b.firstPrincipalLength()*6);
         return true;
     }
     else {
         return false;
     }
+}
+
+void BallDetector::buildInverseGreen(const ImageLiteU8 green, const ImageLiteU8 white,
+                                     int x0, int y0, int ht, int wd)
+{
+    if (x0 < 0) x0 = 0;
+    if (y0 < 0) y0 = 0;
+    if (x0 + wd > green.width()) wd = green.width() - x0;
+    if (y0 + ht > green.height()) ht = green.height() - y0;
+
+
+    ImageLiteU8 gWindow(green, x0, y0, wd, ht);
+    ImageLiteU8 wWindow(white, x0, y0, wd, ht);
+    uint8_t* buffer = new uint8_t[ht * wd];
+
+    for (int i=0; i<ht; i++) {
+        for (int j=0; j<wd; j++) {
+            uint8_t gv = 255 - (*gWindow.pixelAddr(j, i));
+            uint8_t wv = 255 - (*wWindow.pixelAddr(j, i));
+            buffer[i*wd + j] = min(gv, wv);
+        }
+    }
+    delete inverseGreen.pixelAddr();
+    ImageLiteU8 ig(wd, ht, wd, buffer);
+    inverseGreen = ig;
 }
 
 Ball::Ball(Blob& b, double x_, double y_, double cameraH_, int imgHeight_, int imgWidth_) :
