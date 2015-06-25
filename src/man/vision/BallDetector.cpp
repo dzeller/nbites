@@ -79,23 +79,27 @@ bool BallDetector::findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 w
          Blob b = _best.getBlob();
          int x0 = b.centerX() - b.firstPrincipalLength() * 3;
          int y0 = b.centerY() - b.firstPrincipalLength() * 3;
-         buildInverseGreen(green, white, x0, y0, b.firstPrincipalLength()*6,
+         buildInverseGreen(orange, green, white, x0, y0, b.firstPrincipalLength()*6,
                            b.firstPrincipalLength()*6);
-        return true;
+         return true;
     }
     else {
         return false;
     }
 }
 
-void BallDetector::buildInverseGreen(const ImageLiteU8 green, const ImageLiteU8 white,
-                                     int x0, int y0, int ht, int wd)
+void BallDetector::buildInverseGreen(const ImageLiteU8 orange, const ImageLiteU8 green,
+                                     const ImageLiteU8 white, int x0, int y0, int ht, int wd)
 {
     if (x0 < 0) x0 = 0;
     if (y0 < 0) y0 = 0;
     if (x0 + wd > green.width()) wd = green.width() - x0;
     if (y0 + ht > green.height()) ht = green.height() - y0;
 
+#ifdef OFFLINE
+         ImageLiteU8 oReg(orange, x0, y0, wd, ht);
+         ballRegion = oReg;
+#endif
 
     ImageLiteU8 gWindow(green, x0, y0, wd, ht);
     ImageLiteU8 wWindow(white, x0, y0, wd, ht);
