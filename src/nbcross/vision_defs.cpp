@@ -365,7 +365,29 @@ int Vision_func() {
         count++;
     }
 
+    man::vision::ImageLiteU8 inverseGreen = detector->getInverseGreen();
+    man::vision::ImageLiteU8 ballRegion = detector->getBallRegion();
+
+    int igLength = inverseGreen.width() * inverseGreen.height();
+    std::string igBuff;
+    for (int i=0; i<inverseGreen.height(); i++) {
+        for (int j=0; j<inverseGreen.width(); j++) {
+            igBuff += (char) (*inverseGreen.pixelAddr(j, i));
+        }
+    }
+    for (int i=0; i<ballRegion.height(); i++) {
+        for (int j=0; j<ballRegion.width(); j++) {
+            igBuff += (char) (*ballRegion.pixelAddr(j, i));
+        }
+    }
+
+    allBalls.append(SExpr::keyValue("igWidth", inverseGreen.width()));
+    allBalls.append(SExpr::keyValue("igHeight", inverseGreen.height()));
+    allBalls.append(SExpr::keyValue("brWidth", ballRegion.width()));
+    allBalls.append(SExpr::keyValue("brHeight", ballRegion.height()));
+
     ballRet->setTree(allBalls);
+    ballRet->setData(igBuff);
     rets.push_back(ballRet);
 
     return 0;

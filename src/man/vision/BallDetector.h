@@ -58,7 +58,7 @@ public:
     BallDetector(FieldHomography* homography_, bool topCamera);
     ~BallDetector();
 
-    bool findBall(ImageLiteU8 orange, double cameraHeight);
+    bool findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 white, double cameraHeight);
 
     Ball& best() { return _best; }
 
@@ -66,11 +66,19 @@ public:
 #ifdef OFFLINE
     const std::vector<Ball>& getBalls() const { return candidates; }
     Connectivity* getBlobber() { return &blobber; }
+    ImageLiteU8 ballRegion;
+    ImageLiteU8 getBallRegion() { return ballRegion; }
+    ImageLiteU8 getInverseGreen() { return inverseGreen; }
 #endif
 private:
+    void buildInverseGreen(const ImageLiteU8 orange, const ImageLiteU8 green,
+                           const ImageLiteU8 white, int x0, int y0, int ht, int wd);
+
     Connectivity blobber;
     FieldHomography* homography;
     bool topCamera;
+
+    ImageLiteU8 inverseGreen;
 
     Ball _best;
 

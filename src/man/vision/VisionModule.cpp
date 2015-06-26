@@ -123,6 +123,7 @@ void VisionModule::run_()
         ImageLiteU16 yImage(frontEnd[i]->yImage());
         ImageLiteU8 greenImage(frontEnd[i]->greenImage());
         ImageLiteU8 orangeImage(frontEnd[i]->orangeImage());
+        ImageLiteU8 whiteImage(frontEnd[i]->whiteImage());
 
         // Calculate kinematics and adjust homography
         if (jointsIn.message().has_head_yaw()) {
@@ -153,7 +154,8 @@ void VisionModule::run_()
         // Classify field lines
         fieldLines[i]->classify(*(boxDetector[i]), *(cornerDetector[i]));
 
-        ballDetected |= ballDetector[i]->findBall(orangeImage, kinematics[i]->wz0());
+        ballDetected |= ballDetector[i]->findBall(orangeImage, greenImage,
+                                                  whiteImage, kinematics[i]->wz0());
     }
 
     // Send messages on outportals

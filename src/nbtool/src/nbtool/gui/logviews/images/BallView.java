@@ -8,6 +8,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 import nbtool.data.Log;
 import nbtool.data.SExpr;
@@ -26,7 +27,12 @@ public class BallView extends ViewParent implements IOFirstResponder {
     Log in;
     BufferedImage original;
     BufferedImage orange;
+    BufferedImage inverseGreen;
+    BufferedImage ballRegion;
     Log balls;
+
+    // how much we space images out
+    final int imageSpace = 3;
 
     @Override
     public void setLog(Log newlog)
@@ -49,7 +55,11 @@ public class BallView extends ViewParent implements IOFirstResponder {
         if(orange == null) return;
         g.drawImage(original, 0, 0, original.getWidth(), original.getHeight(), null);
         drawBlobs();
-        g.drawImage(orange, 0, original.getHeight(), orange.getWidth(), orange.getHeight(), null);
+        g.drawImage(orange, 0, original.getHeight() + imageSpace, orange.getWidth(), orange.getHeight(), null);
+        g.drawImage(inverseGreen, orange.getWidth() + imageSpace, original.getHeight() + imageSpace,
+                    inverseGreen.getWidth(), inverseGreen.getHeight(), null);
+        g.drawImage(ballRegion, orange.getWidth() + inverseGreen.getWidth() + 2 * imageSpace,
+                    original.getHeight() + imageSpace, ballRegion.getWidth(), ballRegion.getHeight(),null);
     }
 
     public void drawBlobs()
@@ -130,11 +140,36 @@ public class BallView extends ViewParent implements IOFirstResponder {
         Y8image o = new Y8image(otree.find("width").get(1).valueAsInt(),
                                 otree.find("height").get(1).valueAsInt(),
                                 out[3].bytes);
+        // We juggle the orange image like this so that it's not a greyscale image
         orange = new BufferedImage(o.width, o.height, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D g = orange.createGraphics();
         g.drawImage(o.toBufferedImage(), 0, 0, null);
-        //drawBlobs();
+
         balls = out[7];
+
+        // "ig_" is inverse green width, height, bytes, etc.
+        int igw = balls.tree().find("igWidth").get(1).valueAsInt();
+        int igh = balls.tree().find("igHeight").get(1).valueAsInt();
+        byte[] igb = Arrays.copyOfRange(balls.bytes, 0, igw*igh);
+        Y8image ig = new Y8image(igw, igh, igb);
+        if (igw != 0 && igh != 0) {
+            inverseGreen = ig.toBufferedImage();
+        }
+        else {
+            inverseGreen = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY);
+        }
+
+        // "br" refers to ball region
+        int brw = balls.tree().find("brWidth").get(1).valueAsInt();
+        int brh = balls.tree().find("brHeight").get(1).valueAsInt();
+        byte[] brb = Arrays.copyOfRange(balls.bytes, igw*igh, igw*igh + brw*brh);
+        Y8image br = new Y8image(brw, brh, brb);
+        if (brw != 0 && brh != 0) {
+            ballRegion = br.toBufferedImage();
+        }
+        else {
+            ballRegion = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY);
+        }
     }
 
     @Override
