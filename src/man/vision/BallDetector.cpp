@@ -64,7 +64,7 @@ bool BallDetector::findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 w
             candidates.push_back(b);
             std::cout << "accepted ball because:\n" << b.properties() << std::endl;
 #endif
-            if (b.confidence() > _best.confidence()) {
+            if (b.dist < _best.dist) {
                 _best = b;
             }
         }
@@ -114,7 +114,7 @@ ImageLiteU8 BallDetector::buildInverseGreen(const ImageLiteU8 green, const Image
 
 Ball::Ball(Blob& b, double x_, double y_, double cameraH_, int imgHeight_, int imgWidth_) :
     blob(b),
-    radThresh(.1, .5),
+    radThresh(.3, .7),
     thresh(.5, .8),
     x_rel(x_),
     y_rel(y_),
@@ -130,7 +130,8 @@ Ball::Ball() :
     blob(0),
     thresh(0, 0),
     radThresh(0, 0),
-    _confidence(0)
+    _confidence(0),
+    dist(200000)
 { }
 
 void Ball::compute()

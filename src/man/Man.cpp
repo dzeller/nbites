@@ -121,7 +121,8 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
         vision.inertsIn.wireTo(&topTranscriber.inertsOut, true);
         vision.setCalibrationParams(robotName);
 
-        localization.visionInput.wireTo(&vision.linesOut);
+        localization.linesInput.wireTo(&vision.linesOut);
+        localization.cornersInput.wireTo(&vision.cornersOut);
         localization.motionInput.wireTo(&motion.odometryOutput_, true);
         localization.resetInput[0].wireTo(&behaviors.resetLocOut, true);
         localization.resetInput[1].wireTo(&sharedBall.sharedBallReset, true);
@@ -161,6 +162,7 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
         behaviors.jointsIn.wireTo(&sensors.jointsOutput_, true);
         behaviors.stiffStatusIn.wireTo(&sensors.stiffStatusOutput_, true);
         behaviors.linesIn.wireTo(&vision.linesOut, true);
+        behaviors.cornersIn.wireTo(&vision.cornersOut, true);
         // behaviors.obstacleIn.wireTo(&obstacle.obstacleOut);
         behaviors.sharedBallIn.wireTo(&sharedBall.sharedBallOutput);
         behaviors.sharedFlipIn.wireTo(&sharedBall.sharedBallReset, true);
@@ -267,6 +269,8 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
 //#ifdef LOG_VISION
         cognitionThread.log<messages::FieldLines>((control::VISION), &vision.linesOut,
                                                    "proto-FieldLines", "vision");
+        cognitionThread.log<messages::Corners>((control::VISION), &vision.cornersOut,
+                                                   "proto-Corners", "vision");
         // cognitionThread.log<messages::VisionField>((control::VISION), &vision.vision_field,
         //                                            "proto-VisionField", "vision");
         // cognitionThread.log<messages::VisionBall>((control::VISION), &vision.vision_ball,
