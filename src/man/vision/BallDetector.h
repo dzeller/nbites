@@ -71,8 +71,8 @@ public:
     ImageLiteU8 getInverseGreen() { return inverseGreen; }
 #endif
 private:
-    void buildInverseGreen(const ImageLiteU8 orange, const ImageLiteU8 green,
-                           const ImageLiteU8 white, int x0, int y0, int ht, int wd);
+    ImageLiteU8 buildInverseGreen(const ImageLiteU8 green, const ImageLiteU8 white,
+                                  int x0, int y0, int ht, int wd);
 
     Connectivity blobber;
     FieldHomography* homography;
