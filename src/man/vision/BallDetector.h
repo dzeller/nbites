@@ -68,17 +68,18 @@ public:
     Connectivity* getBlobber() { return &blobber; }
     ImageLiteU8 ballRegion;
     ImageLiteU8 getBallRegion() { return ballRegion; }
-    ImageLiteU8 getInverseGreen() { return inverseGreen; }
+    ImageLiteU8 getInverseGreen() { return inverseGreenImage; }
 #endif
 private:
-    ImageLiteU8 buildInverseGreen(const ImageLiteU8 green, const ImageLiteU8 white,
-                                  int x0, int y0, int ht, int wd);
+    Blob blobOnInverseGreen(const ImageLiteU8 green, const ImageLiteU8 white,
+                            int x0, int y0, int ht, int wd);
 
     Connectivity blobber;
+    Connectivity inverseGreen;
     FieldHomography* homography;
     bool topCamera;
 
-    ImageLiteU8 inverseGreen;
+    ImageLiteU8 inverseGreenImage;
 
     Ball _best;
 

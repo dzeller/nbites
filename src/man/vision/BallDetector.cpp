@@ -11,23 +11,28 @@ namespace vision {
 
 BallDetector::BallDetector(FieldHomography* homography_, bool topCamera_):
     blobber(),
+    inverseGreen(),
     homography(homography_),
     topCamera(topCamera_)
 {
     blobber.secondThreshold(115);
     blobber.minWeight(4);
 
+    // TODO: should these params be the same as orange blobber?
+    inverseGreen.secondThreshold(115);
+    inverseGreen.minWeight(4);
+
     // Build dummy image so that destruction is guarenteed to succeed
     int igw = 1;
     int igh = 1;
     uint8_t* buff = new uint8_t[igw * igh];
     ImageLiteU8 ig(igw, igh, igw, buff);
-    inverseGreen = ig;
+    inverseGreenImage = ig;
 }
 
 BallDetector::~BallDetector()
 {
-    delete inverseGreen.pixelAddr();
+    delete inverseGreenImage.pixelAddr();
 }
 
 bool BallDetector::findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 white, double cameraHeight)
@@ -71,7 +76,7 @@ bool BallDetector::findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 w
         else {
             // TODO: ball debug flag
 #ifdef OFFLINE
-            std::cout << "declined ball because:\n" << b.properties() << std::endl;
+            //std::cout << "declined ball because:\n" << b.properties() << std::endl;
 #endif
         }
     }
@@ -79,8 +84,17 @@ bool BallDetector::findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 w
          Blob b = _best.getBlob();
          int x0 = b.centerX() - b.firstPrincipalLength() * 3;
          int y0 = b.centerY() - b.firstPrincipalLength() * 3;
-         buildInverseGreen(green, white, x0, y0, b.firstPrincipalLength()*6,
-                           b.firstPrincipalLength()*6);
+         Blob inverse = blobOnInverseGreen(green, white, x0, y0, b.firstPrincipalLength()*6,
+                                           b.firstPrincipalLength()*6);
+
+         double ratio = min(b.count(), inverse.count()) / max(b.count(), inverse.count());
+
+         if (ratio < .5) {
+             std::cout << "ratio is: " << ratio << std::endl;
+             _best = reset;
+             return false;
+         }
+
          return true;
     }
     else {
@@ -88,13 +102,16 @@ bool BallDetector::findBall(ImageLiteU8 orange, ImageLiteU8 green, ImageLiteU8 w
     }
 }
 
-ImageLiteU8 BallDetector::buildInverseGreen(const ImageLiteU8 green, const ImageLiteU8 white,
-                                            int x0, int y0, int ht, int wd)
+Blob BallDetector::blobOnInverseGreen(const ImageLiteU8 green, const ImageLiteU8 white,
+                                      int x0, int y0, int ht, int wd)
 {
     if (x0 < 0) x0 = 0;
     if (y0 < 0) y0 = 0;
     if (x0 + wd > green.width()) wd = green.width() - x0;
     if (y0 + ht > green.height()) ht = green.height() - y0;
+
+    // Blobber requires that pitch be a multiple of 16
+    wd += (16 - wd % 16);
 
     ImageLiteU8 gWindow(green, x0, y0, wd, ht);
     ImageLiteU8 wWindow(white, x0, y0, wd, ht);
@@ -108,8 +125,24 @@ ImageLiteU8 BallDetector::buildInverseGreen(const ImageLiteU8 green, const Image
         }
     }
 
+    inverseGreen.run(buffer, wd, ht, wd);
+
+    Blob ret(0);
+    for (auto i=inverseGreen.blobs.begin(); i!=inverseGreen.blobs.end(); i++) {
+        if ((*i).count() > ret.count()) {
+            ret = *i;
+        }
+    }
+
+#ifdef OFFLINE
+    delete inverseGreenImage.pixelAddr();
     ImageLiteU8 ig(wd, ht, wd, buffer);
-    return ig;
+    inverseGreenImage = ig;
+#else
+    delete buffer;
+#endif
+
+    return ret;
 }
 
 Ball::Ball(Blob& b, double x_, double y_, double cameraH_, int imgHeight_, int imgWidth_) :
