@@ -18,7 +18,7 @@ public:
   Vector<m, V> c[n];
 
   /** Default constructor. */
-  Matrix<m, n, V>() {}
+  Matrix<m, n, V>() = default;
 
   /**
   * Constructor that initializes the diagonal of nxn matrices with a value
@@ -83,7 +83,7 @@ public:
   * @param i index
   * @return reference to column
   */
-  inline Vector<m, V>& operator[](int i)
+  Vector<m, V>& operator[](int i)
   {
     return c[i];
   }
@@ -93,7 +93,7 @@ public:
   * @param i index
   * @return reference to column
   */
-  inline const Vector<m, V>& operator[](int i) const
+  const Vector<m, V>& operator[](int i) const
   {
     return c[i];
   }

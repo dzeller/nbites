@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Tools/Streams/Streamable.h"
-#include "Tools/Debugging/DebugImages.h"
 #include "Image.h"
 #include <cstring>
 #include "Platform/Linux/SystemCall.h"
@@ -38,12 +37,12 @@ public:
 
     TImage& operator=(const TImage& other);
 
-    inline Pixel* operator[](const int y)
+    Pixel* operator[](const int y)
     {
       return image + y * width;
     }
 
-    inline const Pixel* operator[](const int y) const
+    const Pixel* operator[](const int y) const
     {
       return image + y * width;
     }
@@ -59,18 +58,19 @@ public:
     void uncompress(TImage<PixelUncompressed>& uncompressedImage) const;
   };
 
-  typedef TImage<ImageBH::Pixel> ThumbnailImage;
-  typedef TImageCompressed<unsigned short, ImageBH::Pixel> ThumbnailImageCompressed;
+  using ThumbnailImage = TImage<ImageBH::Pixel>;
+  using ThumbnailImageCompressed = TImageCompressed<unsigned short, ImageBH::Pixel>;
+  using ThumbnailImageGrayscale = TImage<unsigned char>;
+  
 
   ThumbnailImage image;
   ThumbnailImageCompressed compressedImage;
-  int scale;
+  ThumbnailImageGrayscale imageGrayscale;
 
-private:
-  DECLARE_DEBUG_IMAGE(thumbnailDI);
+  int scale;
+  bool grayscale;
 
 public:
-
   void draw() const;
 
 private:
