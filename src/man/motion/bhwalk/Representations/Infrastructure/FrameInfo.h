@@ -12,17 +12,18 @@
 * @class FrameInfoBH
 * A class that contains information on the current frame.
 */
-STREAMABLE(FrameInfoBH,
+class FrameInfoBH
 {
 public:
+    FrameInfoBH() {time = 0; cycleTime = 1;}
   /**
   * The method returns the time difference between a given time stamp and the
   * current frame time.
   * @param timeStamp A time stamp, usually in the past.
   * @return The number of ms passed since the given time stamp.
   */
-  int getTimeSince(unsigned timeStamp) const {return int(time - timeStamp);},
+  int getTimeSince(unsigned timeStamp) const {return int(time - timeStamp);}
 
-  (unsigned)(0) time, /**< The time stamp of the data processed in the current frame in ms. */
-  (float)(1) cycleTime, /**< Length of one cycle in seconds. */
-});
+  unsigned time; /**< The time stamp of the data processed in the current frame in ms. */
+  float cycleTime; /**< Length of one cycle in seconds. */
+};

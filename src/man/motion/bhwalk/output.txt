@@ -1,0 +1,51 @@
+# 1 "test.cpp"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "test.cpp"
+# 1 "MotionSelector.h" 1
+
+
+
+
+
+
+
+       
+
+# 1 "Tools/Module/Module.h" 1
+# 44 "Tools/Module/Module.h"
+       
+
+# 1 "Tools/Module/../../Platform/BHAssert.h" 1
+
+
+
+
+
+
+       
+# 16 "Tools/Module/../../Platform/BHAssert.h"
+class AssertBH
+{
+public:
+
+
+
+
+
+
+
+  static void print(const char* file, int line, const char* format, ...);
+
+
+
+
+  static void abort();
+# 67 "Tools/Module/../../Platform/BHAssert.h"
+};
+# 47 "Tools/Module/Module.h" 2
+# 1 "Tools/Module/../../Tools/Debugging/Modify.h" 1
+# 11 "Tools/Module/../../Tools/Debugging/Modify.h"
+# 1 "Tools/Module/../../Tools/Debugging/DebugDataTable.h" 1
+# 12 "Tools/Module/../../Tools/Debugging/DebugDataTable.h"
+       

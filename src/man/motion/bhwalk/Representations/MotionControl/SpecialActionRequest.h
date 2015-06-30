@@ -13,7 +13,7 @@
 * @class SpecialActionRequest
 * The class represents special action requests.
 */
-STREAMABLE(SpecialActionRequest,
+class SpecialActionRequest
 {
 public:
   /** ids for all special actions */
@@ -27,8 +27,12 @@ public:
    * @param name The name of the special action.
    * @return The corresponding id if found, or numOfSpecialActions if not found.
    */
-  static SpecialActionID getSpecialActionFromName(const char* name),
+    static SpecialActionID getSpecialActionFromName(const char* name);
 
-  (SpecialActionID)(playDead) specialAction, /**< The special action selected. */
-  (bool)(false) mirror, /**< Mirror left and right. */
-});
+    SpecialActionRequest() {
+        specialAction = playDead;
+        mirror = false;
+    }
+    SpecialActionID specialAction; /**< The special action selected. */
+    bool mirror; /**< Mirror left and right. */
+};

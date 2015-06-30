@@ -14,10 +14,12 @@
 * @class SpecialActionsOutputBH
 * A class that represents the output of the special actions module.
 */
-STREAMABLE_WITH_BASE(SpecialActionsOutputBH, JointRequestBH,
-{,
-  (Pose2DBH) odometryOffset, /**< The body motion performed in this step. */
-  (bool)(true) isLeavingPossible, /**< Is leaving the motion module possible now? */
-  (bool)(false) isMotionStable, /**< Is the position of the camera directly related to the kinematic chain of joint angles? */
-  (SpecialActionRequest) executedSpecialAction, /**< The special action currently executed. */
-});
+//STREAMABLE_WITH_BASE(SpecialActionsOutputBH, JointRequestBH,
+class SpecialActionsOutputBH : JointRequestBH
+{
+    SpecialActionsOutputBH() { isLeavingPossible = true; isMotionStable = false; }
+    Pose2DBH odometryOffset; /**< The body motion performed in this step. */
+    bool isLeavingPossible; /**< Is leaving the motion module possible now? */
+    bool isMotionStable; /**< Is the position of the camera directly related to the kinematic chain of joint angles? */
+    SpecialActionRequest executedSpecialAction; /**< The special action currently executed. */
+};

@@ -15,8 +15,8 @@
 * @class WalkRequest
 * A class that represents a walk request.
 */
-STREAMABLE(WalkRequest,
-{
+//STREAMABLE(WalkRequest,
+class WalkRequest {
 public:
   ENUM(Mode,
     speedMode, /**< Interpret \c speed as absolute walking speed and ignore \c target. */
@@ -42,10 +42,12 @@ public:
   {
     return !isnan(speed.rotation) && !isnan(speed.translation.x) && !isnan(speed.translation.y)
            && (mode != targetMode || (!isnan(target.rotation) && !isnan(target.translation.x) && !isnan(target.translation.y)));
-  },
+  }
 
-  (Mode)(speedMode) mode, /**< The walking mode. */
-  (Pose2DBH) speed, /**< Walking speeds, in percentage or mm/s and radian/s. */
-  (Pose2DBH) target, /**< Walking target, in mm and radians, relative to the robot. Use either a speed or a target. */
-  (KickType)(none) kickType,
-});
+    WalkRequest() { mode = speedMode; kickType = none; }
+
+    Mode mode; /**< The walking mode. */
+    Pose2DBH speed; /**< Walking speeds, in percentage or mm/s and radian/s. */
+    Pose2DBH target; /**< Walking target, in mm and radians, relative to the robot. Use either a speed or a target. */
+    KickType kickType;
+};
