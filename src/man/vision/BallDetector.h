@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <math.h>
+#include <vector>
 
 #include "Images.h"
 #include "Camera.h"
@@ -21,7 +22,7 @@ const double HORIZ_FOV_RAD = HORIZ_FOV_DEG * M_PI / 180;
 
 class Ball {
 public:
-    Ball(Blob& b, double x_, double y_, double cameraH_, int imgHeight_, int imgWidth_, bool top);
+    Ball(Blob& b, double x_, double y_, double cameraH_, ImageLiteU8 orange_, bool top);
     Ball();
 
     std::string properties();
@@ -30,6 +31,8 @@ public:
 
     // For tool
     Blob& getBlob() { return blob; }
+
+
 //private: should be private. leaving public for now
     void compute();
 
@@ -44,9 +47,14 @@ public:
     double cameraH;
     double dist;
 
+    ImageLiteU8 orange;
     int imgHeight, imgWidth;
+
     double expectedDiam;
     double diameterRatio;
+
+    double expectedArea;
+    double areaRatio;
 
     double _confidence;
 
@@ -61,6 +69,9 @@ public:
     bool findBall(ImageLiteU8 orange, double cameraHeight);
 
     Ball& best() { return _best; }
+
+    // Order returned by this function starts from up and left and proceeds clock-wise
+    static std::vector<int> octantCheck(Blob& b, ImageLiteU8 orange, int thresh);
 
     // For tool
 #ifdef OFFLINE

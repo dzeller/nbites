@@ -42,13 +42,11 @@ bool BallDetector::findBall(ImageLiteU8 orange, double cameraHeight)
 
         // This blob is above the horizon. Can't be a ball
         if (!belowHoriz) {
-#ifdef OFFLINE
-            std::cout << "BLOB's above horizon:" << std::endl;
-#endif
             continue;
         }
 
-        Ball b((*i), x_rel, -1 * y_rel, cameraHeight, orange.height(), orange.width(), topCamera);
+        Ball b((*i), x_rel, -1 * y_rel, cameraHeight, orange, topCamera);
+
         if (b.confidence() > .5) {
 #ifdef OFFLINE
             candidates.push_back(b);
@@ -73,15 +71,78 @@ bool BallDetector::findBall(ImageLiteU8 orange, double cameraHeight)
     }
 }
 
-Ball::Ball(Blob& b, double x_, double y_, double cameraH_, int imgHeight_, int imgWidth_, bool top) :
+std::vector<int> BallDetector::octantCheck(Blob& b, ImageLiteU8 orange, int thresh)
+{
+    std::vector<int> toReturn;
+
+    // TODO: maybe round rather than just cast?
+    int cX = static_cast<int>(b.centerX());
+    int cY = static_cast<int>(b.centerY());
+    int pL = static_cast<int>(b.firstPrincipalLength());
+    int iH = orange.height();
+    int iW = orange.width();
+
+    for (int dx=-1; dx <= 1; dx++) {
+        for (int dy=-1; dy <= 1; dy++) {
+            if (dx==0 && dy==0) continue;
+
+            int currX = cX;
+            int currY = cY;
+            int count=0;
+
+            for(; count < pL; count++) {
+                // TODO make this look nice
+                if (currX == 0
+                    || currY == 0
+                    || currX == iH-1
+                    || currY == iW-1)
+                    break;
+
+                currX += dx;
+                currY += dy;
+
+                int px = *(orange.pixelAddr(currX, currY));
+                if (px < thresh) {
+                    int count2 = 0;
+                    bool stillOK = false;
+                    for (; count2 < pL / 5 && count + count2 < pL; count2++) {
+                        // TODO make this look nice
+                        if (currX == 0
+                            || currY == 0
+                            || currX == iH-1
+                            || currY == iW-1)
+                            break;
+                        currX += dx;
+                        currY += dy;
+                        px = *(orange.pixelAddr(currX, currY));
+                        if (px > thresh) {
+                            stillOK = true;
+                            break;
+                        }
+                    }
+                    if (stillOK) {
+                        count += count2;
+                        continue;
+                    }
+                    break;
+                }
+            }
+            toReturn.push_back(count);
+        }
+    }
+    return toReturn;
+}
+
+Ball::Ball(Blob& b, double x_, double y_, double cameraH_, ImageLiteU8 orange_, bool top) :
     blob(b),
     radThresh(.3, .7),
     thresh(.5, .8),
     x_rel(x_),
     y_rel(y_),
     cameraH(cameraH_),
-    imgHeight(imgHeight_),
-    imgWidth(imgWidth_),
+    orange(orange_),
+    imgHeight(orange.height()),
+    imgWidth(orange.width()),
     _confidence(0)
 {
     if (!top) {
@@ -115,11 +176,33 @@ void Ball::compute()
     else
         diameterRatio = expectedDiam / (2 * blob.firstPrincipalLength());
 
+    expectedArea = M_PI * pow(blob.firstPrincipalLength(), 2);
+    areaRatio;
+
+    if (expectedArea > blob.count())
+        areaRatio = blob.count() / expectedArea;
+    else
+        areaRatio = expectedArea / blob.count();
+
     //_confidence = (density > thresh).f() * (aspectRatio > thresh).f() * (diameterRatio > radThresh).f();
-    _confidence = ((density > thresh) & (aspectRatio > thresh) & (diameterRatio > radThresh)).f();
+    _confidence = ((density > thresh) & (aspectRatio > thresh)
+                   & (areaRatio > thresh) & (diameterRatio > radThresh)).f();
 
     // Hack/Sanity check to ensure we don't see crazy balls
     if (dist > 600) _confidence = 0;
+    std::vector<int> octants = BallDetector::octantCheck(blob, orange, 175);
+    std::sort(octants.begin(), octants.end());
+
+    if ( 2 * octants[0] < octants[7] && blob.firstPrincipalLength() > 3) {
+#ifdef OFFLINE
+        std::cout << "Killing ball because of octants:" << std::endl;
+        for (int i=0; i<8; i++){
+            std::cout << "\t" << octants[i] << std::endl;
+        }
+
+#endif
+        _confidence = 0;
+    }
 }
 
 std::string Ball::properties()
@@ -138,6 +221,8 @@ std::string Ball::properties()
     d += "\texpect ball to be this many pix: " + to_string(expectedDiam) + "\n";
     d += "\tdiamRatio: " + to_string(diameterRatio) + "\n";
     d += "\tdiam Confidence: " + to_string((diameterRatio> radThresh).f()) + "\n";
+    d += "\texpect ball area to be: " + to_string(expectedArea) + "\n";
+    d += "\tareaRatio: " + to_string(areaRatio) + "\n";
     d += "\n\tconfidence is: " + to_string(_confidence) + "\n====================\n";
     return d;
 }
