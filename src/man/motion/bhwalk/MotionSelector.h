@@ -19,7 +19,7 @@
 
 MODULE(MotionSelector,
 {,
-//  USES(SpecialActionsOutputBH),
+  USES(SpecialActionsOutputBH),
   USES(WalkingEngineOutputBH),
   USES(KickEngineOutputBH),
   USES(GetUpEngineOutputBH),
