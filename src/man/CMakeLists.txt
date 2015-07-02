@@ -153,6 +153,8 @@ target_link_libraries(
   sharedball
   support
   vision
+#  module -lrt
+  rt
 )
 
 install( TARGETS man

@@ -1,5 +1,5 @@
 
-# Set options that are constrained by building for atom
+# # Set options that are constrained by building for atom
 set( OFFLINE OFF )
 
 # Find the NBITES_DIR
@@ -31,7 +31,7 @@ set(CMAKE_FIND_ROOT_PATH ${OE_SYSROOT})
 
 # search for programs in the build host directories
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
-# for libraries and headers in the target directories
+# # for libraries and headers in the target directories
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
