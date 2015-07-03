@@ -361,8 +361,6 @@ class MessageHolder : private RefCounter
 {
   friend class Message<T>;
 
-  static MessagePool<MessageHolder<T> > pool_;
-  // note     This is the pool in which all messages of this type are held
 
   T message;
   // note     The message (object of type T) is the only contents (other than the
@@ -381,15 +379,28 @@ public:
   void initialize() { message.Clear();}
   void finalize() {}
   std::string describe() const { return message.DebugString();}
+
+  static MessagePool<MessageHolder<T> > pool_;
+  // note     This is the pool in which all messages of this type are held
+
+    //static void resetPool(int size) { pool_ = pool_(size); }
 };
 
 // Override the default pool size for a given type by providing a template specialization.
 #define SET_POOL_SIZE(type, size) \
     template<> portals::MessagePool<portals::MessageHolder<type> > portals::MessageHolder<type>::pool_(size)
 
+// // Overriding the default pool size gives multiple definition errors with some compilers
+// #define RESET_POOL_SIZE(type, size) \
+//     portals::MessagePool<portals::MessageHolder<type> > portals::MessageHolder<type>::pool_ = 
+//     //portals::MessageHolder<type>::pool_ = portals::MessageHolder<type>::MessagePool<MessageHolder<type> >(size)
+//     //template<> portals::MessageHolder<type>::resetPool(size)
+//     //portals::MessageHolder<type>::pool_ = portals::MessageHolder<type>::pool_(size)
+
 // For setting the default size within this template, the template<> isn't needed
 #define SET_POOL_SIZE_DEFAULT(type, size) \
     MessagePool<MessageHolder<type> > MessageHolder<type>::pool_(size)
+
 
 // Here is the default pool size
 
@@ -400,7 +411,7 @@ template<class T>
 SET_POOL_SIZE_DEFAULT(T, 24);
 #else
 template<class T>
-SET_POOL_SIZE_DEFAULT(T, 8);
+SET_POOL_SIZE_DEFAULT(T, 24);
 #endif
 
 template<class T>
