@@ -183,8 +183,9 @@ int Boss::startMan() {
         std::cout << "\n\n\n=================================================\n\n\n" << std::endl;
     }
     else if (child == 0) {
+        char* LD_LIB[] = {"LD_LIBRARY_PATH=/home/nao/nbites/lib/", NULL};
         //replace this child process with an instance of man.
-        execl("/home/nao/nbites/lib/man", "", NULL);
+        execle("/home/nao/nbites/lib/man", "", NULL, LD_LIB); 
         printf("CHILD PROCESS FAILED TO EXECL MAN!\n");
         //exit(1); Can't do this because Aldebaran overrides it
         int val = *((int *) 0); // FORCE SEG FAULT
