@@ -18,7 +18,6 @@ void MotionSelector::stand()
     if(theInstance && SystemCall::getMode() == SystemCall::physicalRobot) {
         theInstance->forceStand = true;
     }
-  }
 }
 
 void MotionSelector::update(MotionSelectionBH& motionSelection)
@@ -48,7 +47,7 @@ void MotionSelector::update(MotionSelectionBH& motionSelection)
        lastMotion == MotionRequestBH::stand || // stand can always be left
        (lastMotion == MotionRequestBH::specialAction) ||
 //       (lastMotion == MotionRequestBH::getUp && (!&theGetUpEngineOutputBH || theGetUpEngineOutputBH.isLeavingPossible)) ||
-       (lastMotion == MotionRequestBH::kick && theKickEngineOutput.isLeavingPossible))
+       (lastMotion == MotionRequestBH::kick && theKickEngineOutputBH.isLeavingPossible))
     {
       motionSelection.targetMotion = requestedMotion;
     }
