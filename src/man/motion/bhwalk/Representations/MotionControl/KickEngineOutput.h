@@ -11,15 +11,13 @@
 #include "Representations/MotionControl/KickRequest.h"
 
 /**
-* @class KickEngineOutput
+* @class KickEngineOutputBH
 * A class that represents the output of the walking engine.
 */
-//STREAMABLE_WITH_BASE(KickEngineOutputBH, JointRequest,
-class KickEngineOutputBH : JointRequestBH
-{
-    KickEngineOutputBH() { isLeavingPossible = true; isStable = true; }
-    Pose2DBH odometryOffset; /**< The body motion performed in this step. */
-    bool isLeavingPossible; /**< Is leaving the motion module possible now? */
-    bool isStable; /**< Is motion currently stable? */
-    KickRequest executedKickRequest; /**< The kick request that is currently in execution. */
-};
+STREAMABLE_WITH_BASE(KickEngineOutputBH, JointRequestBH,
+{,
+    (Pose2DBH) odometryOffset, /**< The body motion performed in this step. */
+    (bool)(true) isLeavingPossible, /**< Is leaving the motion module possible now? */
+    (bool)(true) isStable, /**< Is motion currently stable? */
+    (KickRequest) executedKickRequest, /**< The kick request that is currently in execution. */
+});
