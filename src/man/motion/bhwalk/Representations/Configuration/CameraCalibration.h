@@ -23,4 +23,4 @@ STREAMABLE(CameraCalibrationBH,
   (Vector3BH<>) bodyTranslationCorrection, /**< The correction of the body translation in mm. */
 });
 
-using CameraCalibrationNext = Next<CameraCalibration>;
+using CameraCalibrationNext = Next<CameraCalibrationBH>;

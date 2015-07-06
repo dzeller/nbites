@@ -174,7 +174,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         } else if (currentCommand.get() && currentCommand->getType() == MotionConstants::STEP) {
             tryingToWalk = true;
 
-            StepCommand::ptr command = boost::shared_static_cast<StepCommand>(currentCommand);
+            StepCommand::ptr command = boost::static_pointer_cast<StepCommand>(currentCommand);
 
             Pose2DBH deltaOdometry = walkingEngine->theOdometryDataBH - startOdometry;
             Pose2DBH absoluteTarget(command->theta_rads, command->x_mms, command->y_mms);
@@ -208,7 +208,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         if (currentCommand.get() && currentCommand->getType() == MotionConstants::WALK) {
             tryingToWalk = true;
 
-            WalkCommand::ptr command = boost::shared_static_cast<WalkCommand>(currentCommand);
+            WalkCommand::ptr command = boost::static_pointer_cast<WalkCommand>(currentCommand);
 
             MotionRequestBH motionRequest;
             motionRequest.motion = MotionRequestBH::walk;
@@ -224,7 +224,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         if (currentCommand.get() && currentCommand->getType() == MotionConstants::DESTINATION) {
             tryingToWalk = true;
 
-            DestinationCommand::ptr command = boost::shared_static_cast<DestinationCommand>(currentCommand);
+            DestinationCommand::ptr command = boost::static_pointer_cast<DestinationCommand>(currentCommand);
 
             MotionRequestBH motionRequest;
             motionRequest.motion = MotionRequestBH::walk;
@@ -320,7 +320,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         justMotionKicked = true;
     }
     else if (walkingEngine->theMotionRequestBH.walkRequest.mode != WalkRequest::targetMode || // else if we are no longer attempting to motion kick
-             !boost::shared_static_cast<DestinationCommand>(currentCommand)->motionKick) {
+             !boost::static_pointer_cast<DestinationCommand>(currentCommand)->motionKick) {
         justMotionKicked = false;
     }
 

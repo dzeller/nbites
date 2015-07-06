@@ -125,6 +125,7 @@ void TorsoMatrixProvider::update(OdometryDataBH& odometryData)
     lastAngleZ = angleZ;
 #else
     odometryOffset.rotation = odometryOffset3D.rotation.getZAngle();
+#endif
   }
 
   PLOT("module:TorsoMatrixProvider:odometryOffsetX", odometryOffset.translation.x);

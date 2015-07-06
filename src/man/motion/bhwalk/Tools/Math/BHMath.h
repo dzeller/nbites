@@ -9,22 +9,32 @@
 
 #pragma once
 
+#include <cmath>
 /**
 * Returns the sign of a value.
 * \param a The value.
 * \return The sign of \c a.
 */
-template <class V> inline V sgn(V a)
+template <class V> inline V sgnBH(V a)
 {
   return a < 0 ? V(-1) : a > 0 ? V(1) : 0;
 }
+
+#undef isnan
+#define isnan(x) bhisnan(x)
+
+inline bool bhisnan(float x)
+{
+  return (*(unsigned*) &x & 0x7fffffff) == 0x7fc00000;
+}
+
 
 /**
 * Calculates the square of a value.
 * \param a The value.
 * \return The square of \c a.
 */
-template <class V> inline V sqr(const V& a) {return a * a;}
+template <class V> inline V sqrBH(const V& a) {return a * a;}
 
 /** @name constants for some often used angles */
 ///@{
@@ -70,7 +80,7 @@ inline float fromDegrees(int degrees) {return fromDegrees((float) degrees);}
 * \param data angle coded in rad
 * \return normalized angle coded in rad
 */
-template <class V> inline V normalize(V data)
+template <class V> inline V normalizeBH(V data)
 {
   if(data >= -V(pi) && data < V(pi))
     return data;

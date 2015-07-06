@@ -548,8 +548,8 @@ public:
     panTilt.x = std::atan2(position.y, position.x);
     if(lowerCamera)
     {
-      panTilt.y += cameraCalibration.cameraTiltCorrection; // headTilt joint angle is flipped for some reason
-      panTilt.x -= cameraCalibration.cameraPanCorrection;
+      panTilt.y += cameraCalibration.lowerCameraTiltCorrection; // headTilt joint angle is flipped for some reason
+      panTilt.x -= cameraCalibration.lowerCameraPanCorrection;
     }
     else
     {

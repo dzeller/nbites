@@ -95,6 +95,7 @@ public:
   }
 
   friend class ModuleManager; /**< The ModuleManager gathers all private data. */
+  static std::string config_path;
 };
 
 /**
@@ -338,7 +339,7 @@ void loadModuleParameters(Streamable& parameters, const char* moduleName, const 
   MODIFY("representation:" #type, r); \
   DEBUG_RESPONSE("representation:" #type, OUTPUT(id##type, bin, r); ); \
   EXECUTE_ONLY_IN_DEBUG(r.draw(); ); )
-#define _MODULE_DECLARE_REQUIRES(type) public: const type& the##type = Blackboard::getInstance().alloc<type>(#type);
+#define _MODULE_DECLARE_REQUIRES(type) public: type& the##type = Blackboard::getInstance().alloc<type>(#type);
 #define _MODULE_DECLARE_USES(type) public: const type& the##type = Blackboard::getInstance().alloc<type>(#type);
 #define _MODULE_DECLARE__MODULE_DEFINES_PARAMETERS(...)
 #define _MODULE_DECLARE__MODULE_LOADS_PARAMETERS(...)

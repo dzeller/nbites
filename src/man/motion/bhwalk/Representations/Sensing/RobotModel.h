@@ -21,6 +21,9 @@
 STREAMABLE(RobotModelBH,
 {
 public:
+
+    RobotModelBH() = default;
+
   /**
    * Constructs the RobotModelBH from given joint data.
    * @param joints The joint data.

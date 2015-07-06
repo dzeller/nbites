@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Common.h"
+#include "BHMath.h"
 #include "Tools/Streams/Streamable.h"
 
 /** This class represents a 2-vector */

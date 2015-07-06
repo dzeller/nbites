@@ -73,6 +73,9 @@ public:
   void update(OpponentTeamInfoBH& opponentTeamInfo);
   void update(GameInfoBH& gameInfo);
 
+  void update(JointDataBH& jointData) {} // We can't have these functions as pure virtual
+  void update(SensorDataBH& sensorData) {} //
+
   /**
   * Constructor.
   */

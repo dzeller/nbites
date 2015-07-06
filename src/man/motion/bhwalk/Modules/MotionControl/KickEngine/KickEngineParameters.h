@@ -17,7 +17,7 @@
 STREAMABLE(DynPoint,
 {
 public:
-    //DynPoint() = default;
+  DynPoint() = default;
   DynPoint(int limb, int phaseNumber, int duration, const Vector3BH<>& translation, const Vector3BH<>& angle, const Vector3BH<>& odometryOffset);
   DynPoint(int limb, int phaseNumber, const Vector3BH<>& translation),
 

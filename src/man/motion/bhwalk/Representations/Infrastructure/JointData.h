@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Tools/Math/Common.h"
+#include "Tools/Math/BHMath.h"
 #include "Tools/Streams/AutoStreamable.h"
 #include "Tools/Enum.h"
 

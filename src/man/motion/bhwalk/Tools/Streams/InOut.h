@@ -493,7 +493,7 @@ namespace EnumHelpers
   template<class T, bool isEnum> struct EnumOrClass
   {
     static Out& write(Out& out, const T& t) {return (Out2&) out << t;}
-    static In& read(In& in, T& t) {return (In2&) in >> t;}
+    static In& read(In& in, T& t) {return ((In2&) in) >> t;}
   };
 
   /**

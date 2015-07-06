@@ -8,15 +8,15 @@
 
 #include "Tools/Module/Module.h"
 #include "MotionSelector.h"
-// #include "Modules/Sensing/JointFilter.h"
-// #include "Modules/Sensing/RobotModelProvider.h"
-// #include "Modules/Sensing/InertiaSensorCalibrator.h"
-// #include "Modules/Sensing/InertiaSensorFilter.h"  // FROM OLD BHUMAN WALK
-// #include "Modules/Sensing/SensorFilter.h"
-// #include "Modules/Sensing/FallDownStateDetector.h"
-// #include "Modules/Sensing/TorsoMatrixProvider.h"
-// #include "Modules/Sensing/GroundContactDetector.h"
-// #include "Modules/Infrastructure/NaoProvider.h"
+#include "Modules/Sensing/JointFilter.h"
+#include "Modules/Sensing/RobotModelProvider.h"
+#include "Modules/Sensing/InertiaSensorCalibrator.h"
+#include "Modules/Sensing/InertiaSensorFilter.h"  // FROM OLD BHUMAN WALK
+#include "Modules/Sensing/SensorFilter.h"
+#include "Modules/Sensing/FallDownStateDetector.h"
+#include "Modules/Sensing/TorsoMatrixProvider.h"
+#include "Modules/Sensing/GroundContactDetector.h"
+#include "Modules/Infrastructure/NaoProvider.h"
 #include "Representations/Configuration/RobotDimensions.h"
 #include "Representations/Configuration/MassCalibration.h"
 #include "Representations/Configuration/DamageConfiguration.h"
@@ -28,6 +28,7 @@
 #include "Representations/Sensing/GroundContactState.h"
 #include "Representations/Sensing/OrientationData.h"
 #include "Representations/MotionControl/MotionSelection.h"
+#include "Representations/MotionControl/MotionInfo.h"
 #include "Representations/MotionControl/MotionRequest.h"
 #include "Representations/MotionControl/WalkingEngineOutput.h"
 #include "Representations/MotionControl/HeadJointRequest.h"
@@ -58,27 +59,27 @@ MODULE(WalkingEngine,
 {,
     REQUIRES(MotionSelectionBH),
     REQUIRES(MotionRequestBH),
-    //    REQUIRES(MotionInfoBH)          // FROM OLD BHUMAN WALK
+    REQUIRES(MotionInfoBH),          // FROM OLD BHUMAN WALK
     REQUIRES(RobotModelBH),
     REQUIRES(RobotDimensionsBH),
     REQUIRES(MassCalibrationBH),
     REQUIRES(HeadJointRequestBH),
-    //    REQUIRES(HardnessSettingsBH)    // FROM OLD BHUMAN WALK
-    //    REQUIRES(SensorCalibrationBH)   // FROM OLD BHUMAN WALK
-    //    REQUIRES(JointCalibrationBH)    // FROM OLD BHUMAN WALK
+    REQUIRES(HardnessSettingsBH),    // FROM OLD BHUMAN WALK
+    REQUIRES(SensorCalibrationBH),   // FROM OLD BHUMAN WALK
+    REQUIRES(JointCalibrationBH),    // FROM OLD BHUMAN WALK
     REQUIRES(ArmMotionEngineOutputBH),
     REQUIRES(FrameInfoBH),
     REQUIRES(TorsoMatrixBH),
     REQUIRES(GroundContactStateBH),
     REQUIRES(FallDownStateBH),
-    //    REQUIRES(OrientationDataBH)     // FROM OLD BHUMAN WALK
+    REQUIRES(OrientationDataBH),     // FROM OLD BHUMAN WALK
     REQUIRES(FilteredJointDataBH),
-    //    REQUIRES(JointDataBH)           // FROM OLD BHUMAN WALK
+    REQUIRES(JointDataBH),           // FROM OLD BHUMAN WALK
     REQUIRES(InertiaSensorDataBH),
-    //    REQUIRES(FilteredSensorDataBH)  // FROM OLD BHUMAN WALK
-    //    REQUIRES(SensorDataBH)          // FROM OLD BHUMAN WALK
+    REQUIRES(FilteredSensorDataBH),  // FROM OLD BHUMAN WALK
+    REQUIRES(SensorDataBH),          // FROM OLD BHUMAN WALK
     REQUIRES(DamageConfigurationBH),
-    //    REQUIRES(OdometryDataBH)        // FROM OLD BHUMAN WALK
+    REQUIRES(OdometryDataBH),        // FROM OLD BHUMAN WALK
     PROVIDES_WITH_MODIFY(WalkingEngineOutputBH),
     REQUIRES(WalkingEngineOutputBH),
     PROVIDES_WITH_MODIFY(WalkingEngineStandOutputBH),
@@ -244,9 +245,6 @@ public:
     * Destructor
     */
     ~WalkingEngine();
-
-    void update(WalkingEngineStandOutputBH&) {}
-    };
 
     /**
     * The size of a single step

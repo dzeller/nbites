@@ -179,8 +179,8 @@ void FallDownStateDetector::update(FallDownStateBH& fallDownState)
       }
       keeperJumped = None;
     }
+  }
 }
-
 
 bool FallDownStateDetector::isUprightOrStaggering(FallDownStateBH& fallDownState)
 {

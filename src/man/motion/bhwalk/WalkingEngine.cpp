@@ -213,8 +213,9 @@ void WalkingEngine::update(WalkingEngineOutputBH& walkingEngineOutput)
     theMotionInfoBH.motion = theMotionRequestBH.motion;
     theMotionInfoBH.specialActionRequest = theMotionRequestBH.specialActionRequest;
     theMotionInfoBH.walkRequest = theMotionRequestBH.walkRequest;
-    theMotionInfoBH.bikeRequest = theMotionRequestBH.bikeRequest;
-    theMotionInfoBH.indykickRequest = theMotionRequestBH.indykickRequest;
+    //theMotionInfoBH.bikeRequest = theMotionRequestBH.bikeRequest;
+    //theMotionInfoBH.indykickRequest = theMotionRequestBH.indykickRequest;
+    theMotionInfoBH.kickRequest = theMotionRequestBH.kickRequest;
     theMotionInfoBH.isMotionStable = true;
 
     naoProvider->update(theJointDataBH, theSensorDataBH);
@@ -301,14 +302,14 @@ void WalkingEngine::update(WalkingEngineOutputBH& walkingEngineOutput)
         computeOdometryOffset();
         generateOutput(walkingEngineOutput);
 
-        if(theArmMotionEngineOutput.arms[ArmMotionRequest::left].move)
+        if(theArmMotionEngineOutputBH.arms[ArmMotionRequestBH::left].move)
         {
-            for(int i = JointData::LShoulderPitch; i < JointData::RShoulderPitch; i++)
+            for(int i = JointDataBH::LShoulderPitch; i < JointDataBH::RShoulderPitch; i++)
                 walkingEngineOutput.jointHardness.hardness[i] = 50;
         }
-        if(theArmMotionEngineOutput.arms[ArmMotionRequest::right].move)
+        if(theArmMotionEngineOutputBH.arms[ArmMotionRequestBH::right].move)
         {
-            for(int i = JointData::RShoulderPitch; i < JointData::LHipYawPitch; i++)
+            for(int i = JointDataBH::RShoulderPitch; i < JointDataBH::LHipYawPitch; i++)
                 walkingEngineOutput.jointHardness.hardness[i] = 50;
         }
     }
@@ -666,7 +667,7 @@ void WalkingEngine::generateOutput(WalkingEngineOutputBH& walkingEngineOutput)
     walkingEngineOutput.executedWalk.kickType = predictedPendulumPlayer.phase.kickType; //kickPlayer.isActive() ? kickPlayer.getType() : WalkRequest::none;
     (JointRequestBH&)walkingEngineOutput = jointRequest;
 
-    walkingEngineOutput.walkPhase = static_cast<WalkingEngineOutput::PhaseType>(pendulumPlayer.phase.type);
+    walkingEngineOutput.walkPhase = static_cast<WalkingEngineOutputBH::PhaseType>(pendulumPlayer.phase.type);
 }
 
 void WalkingEngine::generateDummyOutput(WalkingEngineOutputBH& walkingEngineOutput)
@@ -680,7 +681,7 @@ void WalkingEngine::generateDummyOutput(WalkingEngineOutputBH& walkingEngineOutp
     walkingEngineOutput.positionInWalkCycle = 0.f;
     walkingEngineOutput.instability = 0.f;
     walkingEngineOutput.executedWalk = WalkRequest();
-    walkingEngineOutput.walkPhase = WalkingEngineOutput::PhaseType::standPhase;
+    walkingEngineOutput.walkPhase = WalkingEngineOutputBH::PhaseType::standPhase;
     // leaving joint data untouched
 }
 
@@ -1890,41 +1891,41 @@ void WalkingEngine::updatePendulumParametersX(PendulumPhase& phase, PendulumPhas
 void WalkingEngine::drawW() const
 {
     const float scale = 8.f;
-    Vector3<> p0 = Vector3<>(0.f, 0.f, 0.f);
-    Vector3<> px2 = Vector3<>(200.f * scale * 0.75f, 0.f, 0.f);
-    Vector3<> py2 = Vector3<>(0.f, 200.f * scale * 0.75f, 0.f);
-    Vector3<> pz2 = Vector3<>(0.f, 0.f, 200.f * scale * 0.75f);
-    CYLINDERARROW3D("module:WalkingEngine:W", p0, Vector3<>(px2.x, px2.y, px2.z), 2 * scale, 20 * scale, 10 * scale, ColorRGBA(255, 0, 0));
-    CYLINDERARROW3D("module:WalkingEngine:W", p0, Vector3<>(py2.x, py2.y, py2.z), 2 * scale, 20 * scale, 10 * scale, ColorRGBA(0, 255, 0));
-    CYLINDERARROW3D("module:WalkingEngine:W", p0, Vector3<>(pz2.x, pz2.y, pz2.z), 2 * scale, 20 * scale, 10 * scale, ColorRGBA(0, 0, 255));
+    Vector3BH<> p0 = Vector3BH<>(0.f, 0.f, 0.f);
+    Vector3BH<> px2 = Vector3BH<>(200.f * scale * 0.75f, 0.f, 0.f);
+    Vector3BH<> py2 = Vector3BH<>(0.f, 200.f * scale * 0.75f, 0.f);
+    Vector3BH<> pz2 = Vector3BH<>(0.f, 0.f, 200.f * scale * 0.75f);
+    CYLINDERARROW3D("module:WalkingEngine:W", p0, Vector3BH<>(px2.x, px2.y, px2.z), 2 * scale, 20 * scale, 10 * scale, ColorRGBA(255, 0, 0));
+    CYLINDERARROW3D("module:WalkingEngine:W", p0, Vector3BH<>(py2.x, py2.y, py2.z), 2 * scale, 20 * scale, 10 * scale, ColorRGBA(0, 255, 0));
+    CYLINDERARROW3D("module:WalkingEngine:W", p0, Vector3BH<>(pz2.x, pz2.y, pz2.z), 2 * scale, 20 * scale, 10 * scale, ColorRGBA(0, 0, 255));
 }
 
 void WalkingEngine::drawP() const
 {
-    Vector3<> p0 = Vector3<>(0.f, 0.f, 85.f);
-    Vector3<> px2 = Vector3<>(200.f * 0.75f, 0.f, 0.f);
-    Vector3<> py2 = Vector3<>(0.f, 200.f * 0.75f, 0.f);
-    Vector3<> pz2 = Vector3<>(0.f, 0.f, 200.f * 0.75f);
-    CYLINDERARROW3D("module:WalkingEngine:P", p0, Vector3<>(px2.x, px2.y, px2.z + 85.f), 2, 20, 10, ColorRGBA(255, 0, 0));
-    CYLINDERARROW3D("module:WalkingEngine:P", p0, Vector3<>(py2.x, py2.y, py2.z + 85.f), 2, 20, 10, ColorRGBA(0, 255, 0));
-    CYLINDERARROW3D("module:WalkingEngine:P", p0, Vector3<>(pz2.x, pz2.y, pz2.z + 85.f), 2, 20, 10, ColorRGBA(0, 0, 255));
+    Vector3BH<> p0 = Vector3BH<>(0.f, 0.f, 85.f);
+    Vector3BH<> px2 = Vector3BH<>(200.f * 0.75f, 0.f, 0.f);
+    Vector3BH<> py2 = Vector3BH<>(0.f, 200.f * 0.75f, 0.f);
+    Vector3BH<> pz2 = Vector3BH<>(0.f, 0.f, 200.f * 0.75f);
+    CYLINDERARROW3D("module:WalkingEngine:P", p0, Vector3BH<>(px2.x, px2.y, px2.z + 85.f), 2, 20, 10, ColorRGBA(255, 0, 0));
+    CYLINDERARROW3D("module:WalkingEngine:P", p0, Vector3BH<>(py2.x, py2.y, py2.z + 85.f), 2, 20, 10, ColorRGBA(0, 255, 0));
+    CYLINDERARROW3D("module:WalkingEngine:P", p0, Vector3BH<>(pz2.x, pz2.y, pz2.z + 85.f), 2, 20, 10, ColorRGBA(0, 0, 255));
 }
 
 
-void WalkingEngine::drawQ(const WalkingEngineOutput& walkingEngineOutput) const
+void WalkingEngine::drawQ(const WalkingEngineOutputBH& walkingEngineOutput) const
 {
-    RobotModel robotModel(walkingEngineOutput, theRobotDimensions, theMassCalibration);
-    Pose3D originToQ = robotModel.limbs[predictedPendulumPlayer.phase.type == leftSupportPhase ? MassCalibration::footLeft : MassCalibration::footRight];
-    originToQ.translate(0, 0, -theRobotDimensions.heightLeg5Joint);
+    RobotModelBH robotModel(walkingEngineOutput, theRobotDimensionsBH, theMassCalibrationBH);
+    Pose3DBH originToQ = robotModel.limbs[predictedPendulumPlayer.phase.type == leftSupportPhase ? MassCalibrationBH::footLeft : MassCalibrationBH::footRight];
+    originToQ.translate(0, 0, -theRobotDimensionsBH.heightLeg5Joint);
     originToQ.conc(predictedPendulumPlayer.phase.type == leftSupportPhase ? targetPosture.leftOriginToFoot.invert() : targetPosture.rightOriginToFoot.invert());
 
-    Vector3<> px2 = originToQ * Vector3<>(200.f * 0.75f, 0.f, 0.f);
-    Vector3<> p0 = originToQ * Vector3<>(0.f, 0.f, 0.f);
-    Vector3<> py2 = originToQ * Vector3<>(0.f, 200.f * 0.75f, 0.f);
-    Vector3<> pz2 = originToQ * Vector3<>(0.f, 0.f, 200.f * 0.75f);
-    CYLINDERARROW3D("module:WalkingEngine:Q", p0, Vector3<>(px2.x, px2.y, px2.z), 2, 20, 10, ColorRGBA(255, 0, 0));
-    CYLINDERARROW3D("module:WalkingEngine:Q", p0, Vector3<>(py2.x, py2.y, py2.z), 2, 20, 10, ColorRGBA(0, 255, 0));
-    CYLINDERARROW3D("module:WalkingEngine:Q", p0, Vector3<>(pz2.x, pz2.y, pz2.z), 2, 20, 10, ColorRGBA(0, 0, 255));
+    Vector3BH<> px2 = originToQ * Vector3BH<>(200.f * 0.75f, 0.f, 0.f);
+    Vector3BH<> p0 = originToQ * Vector3BH<>(0.f, 0.f, 0.f);
+    Vector3BH<> py2 = originToQ * Vector3BH<>(0.f, 200.f * 0.75f, 0.f);
+    Vector3BH<> pz2 = originToQ * Vector3BH<>(0.f, 0.f, 200.f * 0.75f);
+    CYLINDERARROW3D("module:WalkingEngine:Q", p0, Vector3BH<>(px2.x, px2.y, px2.z), 2, 20, 10, ColorRGBA(255, 0, 0));
+    CYLINDERARROW3D("module:WalkingEngine:Q", p0, Vector3BH<>(py2.x, py2.y, py2.z), 2, 20, 10, ColorRGBA(0, 255, 0));
+    CYLINDERARROW3D("module:WalkingEngine:Q", p0, Vector3BH<>(pz2.x, pz2.y, pz2.z), 2, 20, 10, ColorRGBA(0, 0, 255));
 }
 
 const Vector3BH<> WalkingEngine::drawFootPoints[] =

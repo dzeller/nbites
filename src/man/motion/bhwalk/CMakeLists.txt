@@ -18,7 +18,7 @@ set( bhwalk_srcs
   Modules/Sensing/JointFilter.cpp #
   Modules/Sensing/SensorFilter.cpp #
   Modules/Sensing/GroundContactDetector.cpp #
-  #Modules/Infrastructure/NaoProvider.cpp
+  Modules/Infrastructure/NaoProvider.cpp
   Representations/Infrastructure/Image.cpp #
   Representations/Infrastructure/Thumbnail.cpp #
   Representations/Infrastructure/RobotInfo.cpp #

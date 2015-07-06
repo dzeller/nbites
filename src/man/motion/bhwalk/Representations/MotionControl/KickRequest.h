@@ -8,8 +8,8 @@
 #include "Modules/MotionControl/KickEngine/KickEngineParameters.h"
 #include "Tools/Streams/AutoStreamable.h"
 
-//STREAMABLE(KickRequest,
-class KickRequest {
+STREAMABLE(KickRequest,
+{
 public:
   ENUM(KickMotionID,
     kickForward,
@@ -17,16 +17,10 @@ public:
     none
   );
 
-    KickRequest() {
-        kickMotionType = none;
-        mirror = false;
-        dynamical = false;
-    }
+  static KickMotionID getKickMotionFromName(const char* name),
 
-    static KickMotionID getKickMotionFromName(const char* name);
-
-    KickMotionID kickMotionType;
-    bool mirror;
-    bool dynamical;
-    std::vector<DynPoint> dynPoints;
-};
+  (KickMotionID)(none) kickMotionType,
+  (bool)(false) mirror,
+  (bool)(false) dynamical,
+  (std::vector<DynPoint>) dynPoints,
+});
