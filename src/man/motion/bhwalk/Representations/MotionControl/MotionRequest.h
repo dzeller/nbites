@@ -22,7 +22,7 @@ public:
     kick,
     specialAction,
     stand,
-    getUp,
+    getUp
   );
 
   /**
