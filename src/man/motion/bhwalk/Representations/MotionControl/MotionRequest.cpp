@@ -35,8 +35,8 @@ void MotionRequestBH::printOut(char* destination) const
   case specialAction:
     sprintf(destination, ": %s", SpecialActionRequest::getName(specialActionRequest.specialAction));
     break;
-  case kick:
-    sprintf(destination, ": %s", KickRequest::getName(kickRequest.kickMotionType));
+  case bike:
+    sprintf(destination, ": %s", BikeRequest::getName(bikeRequest.bMotionType));
     break;
   }
 }

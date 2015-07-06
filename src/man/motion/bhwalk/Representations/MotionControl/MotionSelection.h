@@ -13,27 +13,21 @@
 * @class MotionSelectionBH
 * A class that represents the motions actually selected based on the constraints given.
 */
-//STREAMABLE(MotionSelectionBH,
-class MotionSelectionBH
+STREAMABLE(MotionSelectionBH,
 {
 public:
-    ENUM(ActivationMode,
-       deactive,
-       active,
-       first
-      );
+  ENUM(ActivationMode,
+    deactive,
+    active,
+    first
+  ),
 
-    MotionSelectionBH() {
-        targetMotion = MotionRequestBH::specialAction;
-        specialActionMode = active;
-        memset(ratios, 0, sizeof(ratios));
-        ratios[MotionRequestBH::specialAction] = 1;
-    }
-
-    MotionRequestBH::Motion targetMotion; /**< The motion that is the destination of the current interpolation. */
-    ActivationMode specialActionMode; /**< Whether and how the special action module is active. */
-    float ratios[MotionRequestBH::numOfMotions]; /**< The current ratio of each motion in the final joint request. */
-    SpecialActionRequest specialActionRequest; /**< The special action request, if it is an active motion. */
+  (MotionRequestBH, Motion)(specialAction) targetMotion, /**< The motion that is the destination of the current interpolation. */
+  (ActivationMode)(active) specialActionMode, /**< Whether and how the special action module is active. */
+  (float[MotionRequestBH::numOfMotions]) ratios, /**< The current ratio of each motion in the final joint request. */
+  (SpecialActionRequest) specialActionRequest, /**< The special action request, if it is an active motion. */
 
   // Initialization
-};
+  memset(ratios, 0, sizeof(ratios));
+  ratios[MotionRequestBH::specialAction] = 1;
+});

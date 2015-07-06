@@ -16,8 +16,7 @@
 * @class JointDataBH
 * A class to represent the joint angles sent to the robot.
 */
-//STREAMABLE(JointDataBH,
-class JointDataBH
+STREAMABLE(JointDataBH,
 {
 public:
   ENUM(Joint,
@@ -44,17 +43,6 @@ public:
     RAnklePitch,
     RAnkleRoll
   );
-
-    float angles[numOfJoints]; /**< The angles of all joints. */
-    unsigned timeStamp; /**< The time when these angles were received. */
-
-    JointDataBH() {
-        timeStamp = 0;
-        // Initialization
-        for(int i = 0; i < numOfJoints; ++i)
-            angles[i] = off;
-    }
-
 
   // If you change those values be sure to change them in MofCompiler.cpp too. (Line ~280)
   enum {off = 1000}; /**< Special angle for switching off a joint. */
@@ -126,9 +114,15 @@ public:
     for(int i = 0; i < numOfJoints; ++i)
       angles[i] = other.mirror((Joint) i);
     timeStamp = other.timeStamp;
-  }
+  },
 
-};
+  (float[numOfJoints]) angles, /**< The angles of all joints. */
+  (unsigned)(0) timeStamp, /**< The time when these angles were received. */
+
+  // Initialization
+  for(int i = 0; i < numOfJoints; ++i)
+    angles[i] = off;
+});
 
 
 /**
@@ -136,8 +130,7 @@ public:
  * This class represents the joint hardness in a jointRequest.
  * It loads the default hardness values from hardnessSettings.cfg.
  */
-//STREAMABLE(HardnessData,
-class HardnessData
+STREAMABLE(HardnessData,
 {
 public:
   enum {useDefault = -1};
@@ -215,23 +208,20 @@ public:
   {
     for(int i = 0; i < JointDataBH::numOfJoints; ++i)
       hardness[i] = useDefault;
-  }
+  },
 
-  int hardness[JointDataBH::numOfJoints]; /**< the custom hardness for each joint */
+  (int[JointDataBH::numOfJoints]) hardness, /**< the custom hardness for each joint */
 
-    HardnessData() {
-        // Initialization
-        resetToDefault();
-    }
-};
+  // Initialization
+  resetToDefault();
+});
 
 class HardnessSettingsBH : public HardnessData {};
 
 /**
  * @class JointRequestBH
  */
-//STREAMABLE_WITH_BASE(JointRequestBH, JointDataBH,
-class JointRequestBH : JointDataBH
+STREAMABLE_WITH_BASE(JointRequestBH, JointDataBH,
 {
 public:
   /**
@@ -259,9 +249,9 @@ public:
       if(isnan(angles[i]) || jointHardness.hardness[i] < 0 || jointHardness.hardness[i] > 100)
         return false;
     return true;
-  }
+  },
 
-      HardnessData jointHardness; /**< the hardness for all joints */
-};
+  (HardnessData) jointHardness, /**< the hardness for all joints */
+});
 
 class FilteredJointDataBH : public JointDataBH {};

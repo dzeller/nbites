@@ -12,9 +12,7 @@
 * @class GroundContactStateBH
 * Describes whether we got contact with ground or not.
 */
-//STREAMABLE(GroundContactStateBH,
-class GroundContactStateBH
-{
-    GroundContactStateBH() { contact = true; }
-    bool contact; /**< a foot of the robot touches the ground */
-};
+STREAMABLE(GroundContactStateBH,
+{,
+  (bool)(true) contact, /**< a foot of the robot touches the ground */
+});

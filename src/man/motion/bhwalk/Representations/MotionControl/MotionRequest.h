@@ -9,13 +9,12 @@
 #include "SpecialActionRequest.h"
 #include "WalkRequest.h"
 #include "KickRequest.h"
-#include "Tools/Enum.h"
 
 /**
 * @class MotionRequestBH
 * A class that represents the motions that can be requested from the robot.
 */
-class MotionRequestBH
+STREAMABLE(MotionRequestBH,
 {
 public:
   ENUM(Motion,
@@ -23,22 +22,20 @@ public:
     kick,
     specialAction,
     stand,
-    getUp
+    getUp,
   );
-
-  MotionRequestBH() { motion = specialAction; };
 
   /**
    * Prints the motion request to a readable string. (E.g. "walk: 100mm/s 0mm/s 0°/s")
    * @param destination The string to fill
    */
-    void printOut(char* destination) const;
+  void printOut(char* destination) const;
 
   /** Draws something*/
-    void draw() const;
+  void draw() const,
 
-    Motion motion; /**< The selected motion. */
-    SpecialActionRequest specialActionRequest; /**< The special action request, if it is the selected motion. */
-    WalkRequest walkRequest; /**< The walk request, if it is the selected motion. */
-    KickRequest kickRequest;
-};
+  (Motion)(specialAction) motion, /**< The selected motion. */
+  (SpecialActionRequest) specialActionRequest, /**< The special action request, if it is the selected motion. */
+  (WalkRequest) walkRequest, /**< The walk request, if it is the selected motion. */
+  (KickRequest) kickRequest,
+});
