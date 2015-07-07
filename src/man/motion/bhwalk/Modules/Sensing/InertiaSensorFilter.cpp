@@ -60,7 +60,7 @@ void InertiaSensorFilter::update(OrientationDataBH& orientationData)
     reset();
   }
 
-  if(theMotionInfoBH.motion == MotionRequestBH::specialAction && theMotionInfoBH.specialActionRequest.specialAction == SpecialActionRequestBH::playDead)
+  if(theMotionInfoBH.motion == MotionRequestBH::specialAction && theMotionInfoBH.specialActionRequest.specialAction == SpecialActionRequest::playDead)
   {
     reset();
   }

@@ -196,8 +196,8 @@ bool FallDownStateDetector::specialSpecialAction()
 
 bool FallDownStateDetector::isStaggering()
 {
-  return abs(theFilteredSensorDataBH.data[SensorDataBH::angleX]) >= staggeringAngleX  pi_180
-         || abs(theFilteredSensorDataBH.data[SensorDataBH::angleY]) >= staggeringAngleY  pi_180;
+  return abs(theFilteredSensorDataBH.data[SensorDataBH::angleX]) >= staggeringAngleX + pi_180
+         || abs(theFilteredSensorDataBH.data[SensorDataBH::angleY]) >= staggeringAngleY + pi_180;
 }
 
 bool FallDownStateDetector::isFalling()

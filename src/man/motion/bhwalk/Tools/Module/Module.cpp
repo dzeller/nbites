@@ -8,6 +8,7 @@
 #include "Tools/Streams/InStreams.h"
 
 ModuleBase* ModuleBase::first = 0;
+std::string ModuleBase::config_path = "";
 
 void loadModuleParameters(Streamable& parameters, const char* moduleName, const char* fileName)
 {

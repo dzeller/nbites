@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Tools/Math/Common.h"
+#include "Tools/Math/BHMath.h"
 #include <algorithm>
 
 /**
