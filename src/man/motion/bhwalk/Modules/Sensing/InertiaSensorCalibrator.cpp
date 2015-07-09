@@ -32,6 +32,7 @@ void InertiaSensorCalibrator::update(InertiaSensorDataBH& inertiaSensorData)
 {
   DEBUG_RESPONSE_ONCE("module:InertiaSensorCalibrator:reset", reset(););
 
+  std::cout << "updating sensor calibrator" << std::endl;
   // frame time check
   if(theFrameInfoBH.time <= lastTime)
   {

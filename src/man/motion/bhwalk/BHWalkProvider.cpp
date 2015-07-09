@@ -134,6 +134,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
     assert(JointDataBH::numOfJoints == Kinematics::NUM_JOINTS);
 
     if (standby) {
+        std::cout << "STANDBY TRUE" << std::endl;
         tryingToWalk = false;
 
         MotionRequestBH motionRequest;
@@ -158,7 +159,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         // TODO why are we sitting?
         motionRequest.motion = MotionRequestBH::specialAction;
         motionRequest.specialActionRequest.specialAction = SpecialActionRequest::sitDown;
-
+        std::cout << "REQUESTING SITDOWN" << std::endl;
         walkingEngine->theMotionRequestBH = motionRequest;
 
         currentCommand = MotionCommand::ptr();
@@ -167,11 +168,13 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         // If we're not calibrated, wait until we are calibrated to walk
         if (!calibrated())
         {
+            std::cout << "NOT CALIBRATED" << std::endl;
             MotionRequestBH motionRequest;
             motionRequest.motion = MotionRequestBH::stand;
 
             walkingEngine->theMotionRequestBH = motionRequest;
         } else if (currentCommand.get() && currentCommand->getType() == MotionConstants::STEP) {
+            std::cout << "TRYING TO WALK" << std::endl;
             tryingToWalk = true;
 
             StepCommand::ptr command = boost::static_pointer_cast<StepCommand>(currentCommand);
@@ -207,7 +210,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         } else {
         if (currentCommand.get() && currentCommand->getType() == MotionConstants::WALK) {
             tryingToWalk = true;
-
+            std::cout << "TRYING TO WALK 222" << std::endl;
             WalkCommand::ptr command = boost::static_pointer_cast<WalkCommand>(currentCommand);
 
             MotionRequestBH motionRequest;
@@ -223,7 +226,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         } else {
         if (currentCommand.get() && currentCommand->getType() == MotionConstants::DESTINATION) {
             tryingToWalk = true;
-
+            std::cout << "DESTINATIONN WALK" << std::endl;
             DestinationCommand::ptr command = boost::static_pointer_cast<DestinationCommand>(currentCommand);
 
             MotionRequestBH motionRequest;
@@ -266,7 +269,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         //TODO make special command for stand
         if (!currentCommand.get()) {
             tryingToWalk = false;
-
+            std::cout << "SPECIAL REQUEST STAND" << std::endl;
             MotionRequestBH motionRequest;
             motionRequest.motion = MotionRequestBH::stand;
 
@@ -324,6 +327,12 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
         justMotionKicked = false;
     }
 
+    // std::cout << "Starting angles" << std::endl;
+    // for (int i=0; i<22; i++) {
+    //     std::cout << output.angles[i] << std::endl;
+    // }
+    // std::cout << "Ending angles" << std::endl;
+
     // Ignore the first chain since it's the head
     for (unsigned i = 1; i < Kinematics::NUM_CHAINS; i++) {
         std::vector<float> chain_angles;
@@ -332,6 +341,7 @@ void BHWalkProvider::calculateNextJointsAndStiffnesses(
                      j <= Kinematics::chain_last_joint[i]; j++) {
             chain_angles.push_back(output.angles[nb_joint_order[j]] * walkingEngine->theJointCalibrationBH.joints[nb_joint_order[j]].sign - walkingEngine->theJointCalibrationBH.joints[nb_joint_order[j]].offset);
             if (output.jointHardness.hardness[nb_joint_order[j]] == 0) {
+                std::cout << "NO STIFFNESS in: " << j << std::endl;
                 chain_hardness.push_back(MotionConstants::NO_STIFFNESS);
             } else {
                 chain_hardness.push_back(output.jointHardness.hardness[nb_joint_order[j]] / 100.f);

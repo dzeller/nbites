@@ -93,6 +93,7 @@ void WalkingEngine::serialize(In* in, Out* out)
 
 void WalkingEngine::init()
 {
+    // TODO: BH Modules can now load their own params
     InMapFile hardnessStream(ModuleBase::config_path + "hardnessSettings.cfg");
     if (hardnessStream.exists()) {
         hardnessStream >> theHardnessSettingsBH;
@@ -328,9 +329,9 @@ void WalkingEngine::update(WalkingEngineOutputBH& walkingEngineOutput)
     }
 
     DEBUG_RESPONSE("module:WalkingEngine:initialPosition",
-            for(int i = 0; i < JointDataBH::numOfJoints; ++i)
+        for(int i = 0; i < JointDataBH::numOfJoints; ++i)
             jointRequest.angles[i] = walkingEngineOutput.angles[i] = 0.f;
-              );
+    );
 
     DECLARE_DEBUG_DRAWING3D("module:WalkingEngine:zmp", "field", drawZmp(); );
 
