@@ -24,5 +24,5 @@ void RobotInfoBH::serialize(In* in, Out* out)
 
 RobotInfoBH::RobotInfoBH() : number(&Global::getSettings() ? Global::getSettings().playerNumber : 0)
 {
-  memset((RobotInfoBH*) this, 0, sizeof(RobotInfoBH));
+    // memset((RobotInfoBH*) this, 0, sizeof(RobotInfoBH));
 }

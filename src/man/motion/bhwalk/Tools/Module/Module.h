@@ -412,6 +412,8 @@ void loadModuleParameters(Streamable& parameters, const char* moduleName, const 
  */
 #define _MODULE_I(name, n, ...) _MODULE_II(name, n, (_MODULE_PARAMETERS, __VA_ARGS__), (_MODULE_LOAD, __VA_ARGS__), (_MODULE_DECLARE, __VA_ARGS__), (_MODULE_FREE, __VA_ARGS__), (_MODULE_INFO, __VA_ARGS__))
 
+class printer { public: printer(std::string s) { std::cout << "printer: " << s << std::endl; } };
+
 /**
  * Generates the actual code of the module's base class.
  * It create all the code and fills in data from the requirements, representations,
